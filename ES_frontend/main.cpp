@@ -33,7 +33,7 @@ int main()
         colorMap.emplace_back();
         for (uint64_t z = 0; z < 150; z++) 
         {
-            int biomeID = getBiomeAt(&g, 1, 1000+(x*4), 63, 1000+(z*4)); // scale, x, y, z 
+            int biomeID = getBiomeAt(&g, 1, 1000+(x*8), 63, 1000+(z*8)); // scale, x, y, z 
             if (biomeID == small_end_islands)    
                 colorMap[x].push_back(ES::color_void);
             else if (biomeID == end_barrens)
@@ -60,8 +60,8 @@ int main()
         {
             for (uint64_t z = 0; z < 150; z++) 
             {
-                sf::RectangleShape rect {{4.f, 4.f}};
-                rect.setPosition({static_cast<float>(x * 4), static_cast<float>(z * 4)});
+                sf::RectangleShape rect {{8.f, 8.f}};
+                rect.setPosition({static_cast<float>(x * 8), static_cast<float>(z * 8)});
                 rect.setFillColor(colorMap[x][z]);
                 window.draw(rect);
             }
