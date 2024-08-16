@@ -64,3 +64,4 @@ ESniper
 cmake_*
 CMakeCache*
 imgui.ini
+.vscode
