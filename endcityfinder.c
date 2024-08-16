@@ -2,11 +2,28 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <unistd.h>
 
 void findStructures(int structureType, int mc, int dim, uint64_t seed,
     int x0, int z0, int x1, int z1)
 {
     printf("\nEnd Cities between x:%d-%d z:%d-%d\n", x0, x1, z0, z1);
+
+    char fname[80];
+    sprintf(fname, "searched\\%" PRIu64 ".%d.%d.csv", seed, x0, z0);
+    printf("%s\n", fname);
+
+    if (access(fname, F_OK) == 0) {
+        printf("File already exists\n");
+        return;
+    } else {
+        printf("File does not exist\n");
+        printf("Searching for cities\n");
+    }
+
+    FILE *fpt;
+    fpt = fopen(fname, "w+");
+    fprintf(fpt, "x,z,ship,looted\n");
 
     // set up a biome generator
     Generator g;
