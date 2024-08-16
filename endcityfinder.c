@@ -66,12 +66,33 @@ void findStructures(int structureType, int mc, int dim, uint64_t seed,
                 if (!isViableStructureTerrain(structureType, &g, pos.x, pos.z))
                     continue;
             }
-            // int n = 0;
+            
+            Piece* plist = (Piece*)calloc(200, sizeof(Piece));
+            {
+                Piece* lst = plist;
+                for (int i = 0; i<200-1; i++){
+                    plist[i].next = &(plist[i+1]);
+                }
+            }
 
-            // int hasShip = 0;
+            int ret = getEndCityPieces(plist, seed, i, j);
+
+            int hasShip = 0;
+
+            printf("Pieces %u\n", ret);
+            Piece* cpiece = plist;
+            for (int i = 0; i < ret; i++) {
+                // printf("Piece %s\n", plist[i].name);
+                if (strcmp(plist[i].name, "ship") == 0) {
+                    printf("SHIIIIP!!!\n");
+                    hasShip = 1;
+                    break;
+                }
+            }
+
 
             printf("x: %d, z: %d\n", pos.x, pos.z);
-            fprintf(fpt, "%d,%d,0,0\n", pos.x, pos.z);
+            fprintf(fpt, "%d,%d,%d,0\n", pos.x, pos.z, hasShip);
         }
     }
     fclose(fpt);
