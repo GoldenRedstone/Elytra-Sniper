@@ -58,3 +58,9 @@ dkms.conf
 .cache/
 out/
 compile_commands.json
+CMakeFiles/
+Makefile*
+ESniper
+cmake_*
+CMakeCache*
+imgui.ini

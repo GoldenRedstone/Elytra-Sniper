@@ -9,6 +9,6 @@
 [submodule "vendor/SFML"]
 	path = vendor/SFML
 	url = https://github.com/SFML/SFML.git
-[submodule "ES_frontend/cubiomes"]
-	path = ES_frontend/cubiomes
+[submodule "vendor/cubiomes"]
+	path = vendor/cubiomes
 	url = https://github.com/Cubitect/cubiomes.git

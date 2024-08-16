@@ -7,7 +7,7 @@ add_subdirectory(src)
 
 # set(SFML_FOUND TRUE)
 set(SFML_STATIC_LIBRARIES FALSE)
-find_package(SFML 2.6.1 COMPONENTS graphics window system audio REQUIRED)
+find_package(SFML 2.5.1 COMPONENTS graphics window system audio REQUIRED)
 target_link_libraries(ESniper PRIVATE sfml-graphics sfml-window sfml-system sfml-audio)
 
 set(IMGUI_SFML_FIND_SFML OFF)
