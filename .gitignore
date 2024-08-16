@@ -53,3 +53,8 @@ dkms.conf
 
 # Stuff we added
 */app
+
+# project
+.cache/
+out/
+compile_commands.json
