@@ -42,6 +42,8 @@ int main() {
     city_icon.loadFromFile("assets/city.png");
     sf::Texture ship_icon;
     ship_icon.loadFromFile("assets/ship.png");
+    sf::Texture player_icon;
+    player_icon.loadFromFile("assets/player.png");
     
     es::ImGuiTheme();
     sf::Clock deltaClock;
@@ -62,32 +64,6 @@ int main() {
 
         window.draw(mapSprite);
 
-        int scale = 10;
-
-        sf::Texture city_icon;
-        city_icon.loadFromFile(PROJECT_DIR("assets/city.png"));
-        sf::Texture ship_icon;
-        ship_icon.loadFromFile(PROJECT_DIR("assets/ship.png"));
-        sf::Texture player_icon;
-        player_icon.loadFromFile(PROJECT_DIR("assets/player.png"));
-
-        for (const CityLocation& city : cities) {
-
-            int mx = (city.x - startX) / 16*4 - scale/2;
-            int mz = (city.z - startZ) / 16*4 - scale/2;
-
-            // sf::CircleShape circle;
-            // circle.setRadius(scale);
-            // circle.setFillColor((city.hasShip) ? sf::Color::Green : sf::Color::Red);
-            // circle.setPosition(mx, mz);
-            // window.draw(circle);
-
-            sf::Sprite sprite;
-            sprite.setTexture((city.hasShip) ? ship_icon : city_icon);
-            sprite.setScale(3, 3);
-            sprite.setPosition(mx, mz);
-            window.draw(sprite);
-        }
 
 
         for (int i = 0; i < cities.size()-1; i++) {
@@ -104,27 +80,23 @@ int main() {
             { static_cast<float>(cities.at(0).x - startX) / 16.f*4.f, static_cast<float>(cities.at(0).z - startZ) / 16.f*4.f }
         );
 
+        int scale = 10;
         int mx = (playerX - startX) / 16*4 - scale/2;
         int mz = (playerZ - startZ) / 16*4 - scale/2;
-
         sf::Sprite sprite;
         sprite.setTexture(player_icon);
         sprite.setScale(3, 3);
         sprite.setPosition(mx, mz);
         window.draw(sprite);
-
-
         for (const CityLocation& city : cities) {
-            int scale = 10;
 
-            int mx = (city.x - startX) / 16*4;
-            int my = (city.z - startZ) / 16*4;
+            int mx = (city.x - startX) / 16*4 - scale/2;
+            int mz = (city.z - startZ) / 16*4 - scale/2;
 
             sf::Sprite sprite;
             sprite.setTexture((city.hasShip) ? ship_icon : city_icon);
-            sprite.setScale(5, 5);
-            sprite.setPosition(mx, my);
-            sprite.setOrigin(sprite.getTexture()->getSize().x / 2.f, sprite.getTexture()->getSize().y / 2.f);
+            sprite.setScale(3, 3);
+            sprite.setPosition(mx, mz);
             window.draw(sprite);
         }
 
