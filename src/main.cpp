@@ -37,7 +37,8 @@ int main() {
     es::colorMap_t colorMap { es::generate_ColorMap(mc, seed, startX, startZ) }; 
     std::shared_ptr<sf::RenderTexture> map { es::generate_map(window, colorMap) };
     sf::Sprite mapSprite { map->getTexture() };
-        
+    
+    es::ImGuiTheme();
     sf::Clock deltaClock;
     while (window.isOpen()) 
     {
@@ -81,8 +82,7 @@ int main() {
         }
 
         ImGui::SFML::Update(window, deltaClock.restart());
-        
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowPos(ImVec2(10, 10));
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
         ImGui::Begin("User Input", nullptr, window_flags);
             ImGui::PushItemWidth(100);

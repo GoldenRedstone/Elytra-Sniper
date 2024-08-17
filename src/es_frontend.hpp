@@ -15,6 +15,7 @@ namespace es{
 
     colorMap_t generate_ColorMap (const MCVersion& mc, uint64_t& seed, const int64_t& sx, const int64_t& sz);
     std::shared_ptr<sf::RenderTexture> generate_map (const sf::Window& win, const es::colorMap_t& CM);
+    void ImGuiTheme();
 
 }
 
