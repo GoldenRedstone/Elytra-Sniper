@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <memory>
-
+#include <array>
 
 namespace es{
 

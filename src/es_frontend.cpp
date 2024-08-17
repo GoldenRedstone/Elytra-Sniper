@@ -1,33 +1,34 @@
 #include "es_frontend.hpp"
 #include "generator.h"
 
-es::colorMap_t generate_ColorMap ()
+namespace es{
+colorMap_t generate_ColorMap ()
 {
     Generator g;
     uint64_t seed = 1;
     setupGenerator(&g, MC_1_20, 0);
     applySeed(&g, DIM_END, seed);
     
-    es::colorMap_t CM { std::make_shared<std::array<std::array<sf::Color, 150>, 150>>() };
+    colorMap_t CM { std::make_shared<std::array<std::array<sf::Color, 150>, 150>>() };
     for (uint64_t x = 0; x < CM->size(); x++)
     {
         for (uint64_t z = 0; z < CM->at(x).size(); z++) 
         {
             int biomeID = getBiomeAt(&g, 1, -1800+(x*8), 63, 4000+(z*8)); // scale, x, y, z 
             if (biomeID == small_end_islands)    
-                CM->at(x).at(z) = es::color_void;
+                CM->at(x).at(z) = color_void;
             else if (biomeID == end_barrens)
-                CM->at(x).at(z) = es::color_barr;
+                CM->at(x).at(z) = color_barr;
             else if (biomeID == end_midlands)
-                CM->at(x).at(z) = es::color_midl;
+                CM->at(x).at(z) = color_midl;
             else if (biomeID == end_highlands)
-                CM->at(x).at(z) = es::color_high;
+                CM->at(x).at(z) = color_high;
         }
     }
     return CM;
 }
 
-std::shared_ptr<sf::RenderTexture> generate_map (const sf::Window& win, const es::colorMap_t& CM)
+std::shared_ptr<sf::RenderTexture> generate_map (const sf::Window& win, const colorMap_t& CM)
 {
       std::shared_ptr<sf::RenderTexture> map { std::make_shared<sf::RenderTexture>() };
       map->create(win.getSize().x, win.getSize().y);
@@ -44,3 +45,4 @@ std::shared_ptr<sf::RenderTexture> generate_map (const sf::Window& win, const es
       }
       return map;
   }
+}
