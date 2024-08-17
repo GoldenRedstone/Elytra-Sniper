@@ -55,6 +55,7 @@ int main() {
     MCVersion mc = MC_1_20;
     uint64_t seed = 2438515238773172647;
     int64_t playerX = 2500, playerZ = 2500;
+    int64_t px = playerX, pz = playerZ;
 
     // Find and load the structures around the player.
     findStructuresAround(seed, playerX, playerZ, mc);
@@ -150,14 +151,16 @@ int main() {
         ImGui::GetStyle().Colors[ImGuiCol_Text] = popedCol;
             ImGui::PushItemWidth(150);
                 ImGui::InputScalar("Seed", ImGuiDataType_U64, &seed, nullptr, nullptr, "%lu");
-                ImGui::InputScalar("X", ImGuiDataType_S64, &playerX, nullptr, nullptr, "%ld");
-                ImGui::InputScalar("Z", ImGuiDataType_S64, &playerZ, nullptr, nullptr, "%ld");
+                ImGui::InputScalar("X", ImGuiDataType_S64, &px, nullptr, nullptr, "%ld");
+                ImGui::InputScalar("Z", ImGuiDataType_S64, &pz, nullptr, nullptr, "%ld");
                 static bool buttonPressed = false;
                 if (ImGui::IsItemActive() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) buttonPressed = true;
             ImGui::PopItemWidth();
             // When the regenerate function is clicked, update the values.
             if (ImGui::Button("Regenerate") || buttonPressed)
             {
+                playerX = px;
+                playerZ = pz;
                 // Find and load the structures around the player.
                 findStructuresAround(seed, playerX, playerZ, mc);
                 cities = readCitiesAround(seed, playerX, playerZ);
