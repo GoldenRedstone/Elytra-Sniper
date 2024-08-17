@@ -32,7 +32,8 @@ int main() {
 
     MCVersion mc = MC_1_20;
     uint64_t seed = 2438515238773172647;
-    int64_t startX = -1800, startZ = 4000;
+    uint64_t startX = -1800, startZ = 4000;
+    uint64_t playerX = startX + 1200, playerZ = startZ + 1200;
     
     es::colorMap_t colorMap { es::generate_ColorMap(mc, seed, startX, startZ) }; 
     std::shared_ptr<sf::RenderTexture> map { es::generate_map(window, colorMap) };
@@ -88,17 +89,6 @@ int main() {
             window.draw(sprite);
         }
 
-        int playerX = startX + 1200;
-        int playerZ = startZ + 1200;
-
-        int mx = (playerX - startX) / 16*4 - scale/2;
-        int mz = (playerZ - startZ) / 16*4 - scale/2;
-
-        sf::Sprite sprite;
-        sprite.setTexture(player_icon);
-        sprite.setScale(3, 3);
-        sprite.setPosition(mx, mz);
-        window.draw(sprite);
 
         for (int i = 0; i < cities.size()-1; i++) {
             es::drawPath(
@@ -110,9 +100,18 @@ int main() {
 
         es::drawPath(
             window,
-            { static_cast<float>(window.getSize().x/2), static_cast<float>(window.getSize().y/2) },
+            { static_cast<float>(playerX - startX) / 16.f*4.f, static_cast<float>(playerZ - startZ) / 16.f*4.f },
             { static_cast<float>(cities.at(0).x - startX) / 16.f*4.f, static_cast<float>(cities.at(0).z - startZ) / 16.f*4.f }
         );
+
+        int mx = (playerX - startX) / 16*4 - scale/2;
+        int mz = (playerZ - startZ) / 16*4 - scale/2;
+
+        sf::Sprite sprite;
+        sprite.setTexture(player_icon);
+        sprite.setScale(3, 3);
+        sprite.setPosition(mx, mz);
+        window.draw(sprite);
 
 
         for (const CityLocation& city : cities) {
@@ -123,7 +122,7 @@ int main() {
 
             sf::Sprite sprite;
             sprite.setTexture((city.hasShip) ? ship_icon : city_icon);
-            sprite.setScale(6, 6);
+            sprite.setScale(5, 5);
             sprite.setPosition(mx, my);
             sprite.setOrigin(sprite.getTexture()->getSize().x / 2.f, sprite.getTexture()->getSize().y / 2.f);
             window.draw(sprite);
@@ -135,15 +134,17 @@ int main() {
         ImGui::Begin("User Input", nullptr, window_flags);
             ImGui::PushItemWidth(100);
                 ImGui::InputScalar("Seed", ImGuiDataType_U64, &seed, nullptr, nullptr, "%lu");
-                ImGui::InputScalar("startX", ImGuiDataType_S64, &startX, nullptr, nullptr, "%ld");
-                ImGui::InputScalar("startZ", ImGuiDataType_S64, &startZ, nullptr, nullptr, "%ld");
+                ImGui::InputScalar("X", ImGuiDataType_S64, &playerX, nullptr, nullptr, "%ld");
+                ImGui::InputScalar("Z", ImGuiDataType_S64, &playerZ, nullptr, nullptr, "%ld");
                 static bool buttonPressed = false;
                 if (ImGui::IsItemActive() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) buttonPressed = true;
             ImGui::PopItemWidth();
             
             if (ImGui::Button("Regenerate") || buttonPressed)
             {
-                colorMap = es::generate_ColorMap(mc, seed, startX, startZ); 
+                startX = playerX - 1200;
+                startZ = playerZ - 1200;
+                colorMap = es::generate_ColorMap(mc, seed, startX, startZ);
                 map =  es::generate_map(window, colorMap);
                 mapSprite.setTexture(map->getTexture());
                 buttonPressed = false;
