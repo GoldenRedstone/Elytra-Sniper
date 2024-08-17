@@ -48,7 +48,7 @@ int main() {
             ImGui::SFML::ProcessEvent(window, event);
             if (event.type == sf::Event::Closed)
                 goto shutdown; // I am not scared a litte goto from time to time!
-            if (event.type == sf::Event::KeyPressed)
+            else if (event.type == sf::Event::KeyPressed)
                 if (event.key.code == sf::Keyboard::Escape)
                     goto shutdown;
         }
