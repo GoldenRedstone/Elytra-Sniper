@@ -13,7 +13,7 @@ namespace es{
     const sf::Color color_high { 195, 189, 89 };
     using colorMap_t = std::shared_ptr<std::array<std::array<sf::Color, 150>, 150>>;
 
-    colorMap_t generate_ColorMap (const MCVersion& mc, uint64_t& seed, const int64_t& sx, const int64_t& sz);
+    colorMap_t generate_ColorMap (const MCVersion& mc, uint64_t& seed, const int64_t& sx, const int64_t& sz, const int mapScale);
     std::shared_ptr<sf::RenderTexture> generate_map (const sf::Window& win, const es::colorMap_t& CM);
     void ImGuiTheme();
     sf::RectangleShape createThickLine(const sf::Vector2f& start, const sf::Vector2f& end, float thickness, const sf::Color& color);
