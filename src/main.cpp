@@ -89,7 +89,7 @@ int main() {
                 ImGui::InputScalar("startX", ImGuiDataType_S64, &startX, nullptr, nullptr, "%ld");
                 ImGui::InputScalar("startZ", ImGuiDataType_S64, &startZ, nullptr, nullptr, "%ld");
                 static bool buttonPressed = false;
-                if (ImGui::IsItemActive() || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) buttonPressed = true;
+                if (ImGui::IsItemActive() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) buttonPressed = true;
             ImGui::PopItemWidth();
             if (ImGui::Button("Regenerate") || buttonPressed)
             {
