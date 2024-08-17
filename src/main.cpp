@@ -86,37 +86,37 @@ int main() {
         es::drawPath(
             window,
             { static_cast<float>(window.getSize().x/2), static_cast<float>(window.getSize().y/2) },
-            { static_cast<float>(cities.at(1).x - startX) / 16.f*4.f, static_cast<float>(cities.at(1).y - startZ) / 16.f*4.f }
+            { static_cast<float>(cities.at(1).x - startX) / 16.f*4.f, static_cast<float>(cities.at(1).z - startZ) / 16.f*4.f }
         );
         es::drawPath(
             window,
-            { static_cast<float>(cities.at(1).x - startX) / 16.f*4.f, static_cast<float>(cities.at(1).y - startZ) / 16.f*4.f },
-            { static_cast<float>(cities.at(3).x - startX) / 16.f*4.f, static_cast<float>(cities.at(3).y - startZ) / 16.f*4.f }
+            { static_cast<float>(cities.at(1).x - startX) / 16.f*4.f, static_cast<float>(cities.at(1).z - startZ) / 16.f*4.f },
+            { static_cast<float>(cities.at(3).x - startX) / 16.f*4.f, static_cast<float>(cities.at(3).z - startZ) / 16.f*4.f }
         );
         es::drawPath(
             window,
-            { static_cast<float>(cities.at(3).x - startX) / 16.f*4.f, static_cast<float>(cities.at(3).y - startZ) / 16.f*4.f },
-            { static_cast<float>(cities.at(2).x - startX) / 16.f*4.f, static_cast<float>(cities.at(2).y - startZ) / 16.f*4.f }
+            { static_cast<float>(cities.at(3).x - startX) / 16.f*4.f, static_cast<float>(cities.at(3).z - startZ) / 16.f*4.f },
+            { static_cast<float>(cities.at(2).x - startX) / 16.f*4.f, static_cast<float>(cities.at(2).z - startZ) / 16.f*4.f }
         );
         es::drawPath(
             window,
-            { static_cast<float>(cities.at(2).x - startX) / 16.f*4.f, static_cast<float>(cities.at(2).y - startZ) / 16.f*4.f },
-            { static_cast<float>(cities.at(4).x - startX) / 16.f*4.f, static_cast<float>(cities.at(4).y - startZ) / 16.f*4.f }
+            { static_cast<float>(cities.at(2).x - startX) / 16.f*4.f, static_cast<float>(cities.at(2).z - startZ) / 16.f*4.f },
+            { static_cast<float>(cities.at(4).x - startX) / 16.f*4.f, static_cast<float>(cities.at(4).z - startZ) / 16.f*4.f }
         );
         es::drawPath(
             window,
-            { static_cast<float>(cities.at(4).x - startX) / 16.f*4.f, static_cast<float>(cities.at(4).y - startZ) / 16.f*4.f },
-            { static_cast<float>(cities.at(5).x - startX) / 16.f*4.f, static_cast<float>(cities.at(5).y - startZ) / 16.f*4.f }
+            { static_cast<float>(cities.at(4).x - startX) / 16.f*4.f, static_cast<float>(cities.at(4).z - startZ) / 16.f*4.f },
+            { static_cast<float>(cities.at(5).x - startX) / 16.f*4.f, static_cast<float>(cities.at(5).z - startZ) / 16.f*4.f }
         );
         es::drawPath(
             window,
-            { static_cast<float>(cities.at(5).x - startX) / 16.f*4.f, static_cast<float>(cities.at(5).y - startZ) / 16.f*4.f },
-            { static_cast<float>(cities.at(0).x - startX) / 16.f*4.f, static_cast<float>(cities.at(0).y - startZ) / 16.f*4.f }
+            { static_cast<float>(cities.at(5).x - startX) / 16.f*4.f, static_cast<float>(cities.at(5).z - startZ) / 16.f*4.f },
+            { static_cast<float>(cities.at(0).x - startX) / 16.f*4.f, static_cast<float>(cities.at(0).z - startZ) / 16.f*4.f }
         );
         es::drawPath(
             window,
-            { static_cast<float>(cities.at(0).x - startX) / 16.f*4.f, static_cast<float>(cities.at(0).y - startZ) / 16.f*4.f },
-            { static_cast<float>(cities.at(6).x - startX) / 16.f*4.f, static_cast<float>(cities.at(6).y - startZ) / 16.f*4.f }
+            { static_cast<float>(cities.at(0).x - startX) / 16.f*4.f, static_cast<float>(cities.at(0).z - startZ) / 16.f*4.f },
+            { static_cast<float>(cities.at(6).x - startX) / 16.f*4.f, static_cast<float>(cities.at(6).z - startZ) / 16.f*4.f }
         );
 
 
@@ -124,7 +124,7 @@ int main() {
             int scale = 10;
 
             int mx = (city.x - startX) / 16*4;
-            int my = (city.y - startZ) / 16*4;
+            int my = (city.z - startZ) / 16*4;
 
             sf::Sprite sprite;
             sprite.setTexture((city.hasShip) ? ship_icon : city_icon);
