@@ -82,6 +82,12 @@ void ImGuiTheme() {
     style.FrameRounding = 10.0f;
     style.ScrollbarRounding = 2.0f;
     style.GrabRounding = 10.0f;
+
+    style.TabRounding = 8.f;
+    style.FrameRounding = 8.f;
+    style.GrabRounding = 8.f;
+    style.WindowRounding = 8.f;
+    style.PopupRounding = 8.f;
 }
 
 } // namespace es
