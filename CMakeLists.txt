@@ -4,6 +4,8 @@ project(ESniper)
 set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(src)
+set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 
 # cubiomes
 add_subdirectory(vendor/cubiomes)
@@ -27,4 +29,3 @@ target_link_libraries(ESniper
   PUBLIC
     ImGui-SFML::ImGui-SFML
 )
-
