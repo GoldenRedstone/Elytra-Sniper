@@ -8,6 +8,7 @@
 #include <array>
 
 #include "es_frontend.hpp"
+#include "endcityfinder.h"
 
 
 int main()
@@ -23,6 +24,8 @@ int main()
     es::colorMap_t colorMap { es::generate_ColorMap() }; 
     std::shared_ptr<sf::RenderTexture> map { es::generate_map(window, colorMap) };
     sf::Sprite mapSprite { map->getTexture() };
+    
+    findStructuresAround(2438515238773172647, -1200, 4600, MC_1_20);
     
     sf::Clock deltaClock;
     while (window.isOpen()) 

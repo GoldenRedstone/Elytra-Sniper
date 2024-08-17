@@ -103,15 +103,8 @@ int findStructuresAround(uint64_t seed, int x, int z, int mc) {
 
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
-            findStructures(End_City, mc, dim, seed, r*(rx+i), r*(rz+j), r*(rx+i+1), r*(rz+j+1));
+            findStructures(End_City, mc, DIM_END, seed, r*(rx+i), r*(rz+j), r*(rx+i+1), r*(rz+j+1));
         }
     }
 
-}
-
-int main()
-{   
-    findStructuresAround(2438515238773172647, -1200, 4600, MC_1_20);
-
-    return 0;
 }
