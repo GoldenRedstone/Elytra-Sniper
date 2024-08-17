@@ -14,10 +14,9 @@ namespace ES{
     const sf::Color color_high { 195, 189, 89 };
     using colorMap_t = std::shared_ptr<std::array<std::array<sf::Color, 150>, 150>>;
 
-    ES::colorMap_t generate_ColorMap ()
+    ES::colorMap_t generate_ColorMap (uint64_t seed, const int64_t& sx, const int64_t& sz)
     {
         Generator g;
-        uint64_t seed = 1;
         setupGenerator(&g, MC_1_20, 0);
         applySeed(&g, DIM_END, seed);
         
@@ -26,8 +25,8 @@ namespace ES{
         {
             for (uint64_t z = 0; z < CM->at(x).size(); z++) 
             {
-                int biomeID = getBiomeAt(&g, 1, -1800+(x*8), 63, 4000+(z*8)); // scale, x, y, z 
-                if (biomeID == small_end_islands)    
+                int biomeID = getBiomeAt(&g, 1, sx+(x*8), 63, sz+(z*8)); // scale, x, y, z 
+                if (biomeID == small_end_islands)
                     CM->at(x).at(z) = ES::color_void;
                 else if (biomeID == end_barrens)
                     CM->at(x).at(z) = ES::color_barr;
@@ -69,7 +68,9 @@ int main()
         return 1;
     }
 
-    ES::colorMap_t colorMap { ES::generate_ColorMap() }; 
+    uint64_t seed = 1;
+    int64_t startX = -1800, startZ = 4000;
+    ES::colorMap_t colorMap { ES::generate_ColorMap(seed, startX, startZ) }; 
     std::shared_ptr<sf::RenderTexture> map { ES::generate_map(window, colorMap) };
     sf::Sprite mapSprite { map->getTexture() };
     
@@ -82,6 +83,9 @@ int main()
             ImGui::SFML::ProcessEvent(window, event);
             if (event.type == sf::Event::Closed)
                 goto shutdown; // I am not scared a litte goto from time to time!
+            if (event.type == sf::Event::KeyPressed)
+                if (event.key.code == sf::Keyboard::Escape)
+                    goto shutdown;
         }
 
         window.clear();
@@ -89,10 +93,23 @@ int main()
         window.draw(mapSprite);
 
         ImGui::SFML::Update(window, deltaClock.restart());
-        ImGui::ShowDemoWindow();
-        ImGui::Begin("Hello, world!");
-        ImGui::Button("Look at this pretty button");
+        
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
+        ImGui::Begin("User Input", nullptr, window_flags);
+            ImGui::PushItemWidth(100);
+            ImGui::InputScalar("Seed", ImGuiDataType_U64, &seed, nullptr, nullptr, "%lu");
+            ImGui::InputScalar("startX", ImGuiDataType_S64, &startX, nullptr, nullptr, "%ld");
+            ImGui::InputScalar("startZ", ImGuiDataType_S64, &startZ, nullptr, nullptr, "%ld");
+            ImGui::PopItemWidth();
+            if (ImGui::Button("Regenerate"))
+            {
+                colorMap = ES::generate_ColorMap(seed, startX, startZ); 
+                map =  ES::generate_map(window, colorMap);
+                mapSprite.setTexture(map->getTexture());
+            }
         ImGui::End();
+        
         ImGui::SFML::Render(window);
         
         window.display();
