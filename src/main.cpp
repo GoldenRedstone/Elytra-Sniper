@@ -57,9 +57,9 @@ int main() {
         window.draw(mapSprite);
 
         sf::Texture city_icon;
-        city_icon.loadFromFile("assets/city.png");
+        city_icon.loadFromFile(PROJECT_DIR("assets/city.png"));
         sf::Texture ship_icon;
-        ship_icon.loadFromFile("assets/ship.png");
+        ship_icon.loadFromFile(PROJECT_DIR("assets/ship.png"));
 
         for (const CityLocation& city : cities) {
             int scale = 10;

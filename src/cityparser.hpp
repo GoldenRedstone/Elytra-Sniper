@@ -5,6 +5,8 @@
 #include <vector>
 #include <stdint.h>
 
+#define PROJECT_DIR(x) std::string(PROJECT_SOURCE_DIR) + x
+
 class CityLocation {
 public:
     int x;
