@@ -103,7 +103,10 @@ int main() {
         ImGui::SFML::Update(window, deltaClock.restart());
         ImGui::SetNextWindowPos(ImVec2(10, 10));
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
+        ImVec4 popedCol = ImGui::GetStyle().Colors[ImGuiCol_Text];
+        ImGui::GetStyle().Colors[ImGuiCol_Text] = ImVec4(1.f, 1.f, 1.f, 1.f);
         ImGui::Begin("User Input", nullptr, window_flags);
+        ImGui::GetStyle().Colors[ImGuiCol_Text] = popedCol;
             ImGui::PushItemWidth(100);
                 ImGui::InputScalar("Seed", ImGuiDataType_U64, &seed, nullptr, nullptr, "%lu");
                 ImGui::InputScalar("X", ImGuiDataType_S64, &playerX, nullptr, nullptr, "%ld");
