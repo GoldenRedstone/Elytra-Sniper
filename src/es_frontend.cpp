@@ -95,10 +95,27 @@ sf::RectangleShape createThickLine(const sf::Vector2f& start, const sf::Vector2f
 
     float angle = std::atan2(direction.y, direction.x) * 180.f / 3.14159f; // Convert to degrees
 
+    line.setOrigin({0.f, line.getSize().y / 2.f});
     line.setPosition(start);
     line.setRotation(angle);
 
     return line;
+}
+
+void drawPath (sf::RenderWindow& win, const sf::Vector2f& start, const sf::Vector2f& end)
+{
+    win.draw(es::createThickLine(
+        start,
+        end,
+        16.f,
+        { 89, 172, 255, 170 } 
+    ));
+    win.draw(es::createThickLine(
+        start,
+        end,
+        6.f,
+        { 8, 0, 188, 255 }
+    ));
 }
 
 } // namespace es

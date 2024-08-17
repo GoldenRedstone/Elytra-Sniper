@@ -17,6 +17,8 @@ namespace es{
     std::shared_ptr<sf::RenderTexture> generate_map (const sf::Window& win, const es::colorMap_t& CM);
     void ImGuiTheme();
     sf::RectangleShape createThickLine(const sf::Vector2f& start, const sf::Vector2f& end, float thickness, const sf::Color& color);
+    void drawPath (sf::RenderWindow& win, const sf::Vector2f& start, const sf::Vector2f& end);
+
 
 }
 
