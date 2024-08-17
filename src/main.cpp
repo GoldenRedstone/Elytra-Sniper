@@ -100,41 +100,18 @@ int main() {
         sprite.setPosition(mx, mz);
         window.draw(sprite);
 
+        for (int i = 0; i < cities.size()-1; i++) {
+            es::drawPath(
+                window,
+                { static_cast<float>(cities.at(i  ).x - startX) / 16.f*4.f, static_cast<float>(cities.at(i  ).z - startZ) / 16.f*4.f },
+                { static_cast<float>(cities.at(i+1).x - startX) / 16.f*4.f, static_cast<float>(cities.at(i+1).z - startZ) / 16.f*4.f }
+            );
+        }
 
         es::drawPath(
             window,
             { static_cast<float>(window.getSize().x/2), static_cast<float>(window.getSize().y/2) },
-            { static_cast<float>(cities.at(1).x - startX) / 16.f*4.f, static_cast<float>(cities.at(1).z - startZ) / 16.f*4.f }
-        );
-        es::drawPath(
-            window,
-            { static_cast<float>(cities.at(1).x - startX) / 16.f*4.f, static_cast<float>(cities.at(1).z - startZ) / 16.f*4.f },
-            { static_cast<float>(cities.at(3).x - startX) / 16.f*4.f, static_cast<float>(cities.at(3).z - startZ) / 16.f*4.f }
-        );
-        es::drawPath(
-            window,
-            { static_cast<float>(cities.at(3).x - startX) / 16.f*4.f, static_cast<float>(cities.at(3).z - startZ) / 16.f*4.f },
-            { static_cast<float>(cities.at(2).x - startX) / 16.f*4.f, static_cast<float>(cities.at(2).z - startZ) / 16.f*4.f }
-        );
-        es::drawPath(
-            window,
-            { static_cast<float>(cities.at(2).x - startX) / 16.f*4.f, static_cast<float>(cities.at(2).z - startZ) / 16.f*4.f },
-            { static_cast<float>(cities.at(4).x - startX) / 16.f*4.f, static_cast<float>(cities.at(4).z - startZ) / 16.f*4.f }
-        );
-        es::drawPath(
-            window,
-            { static_cast<float>(cities.at(4).x - startX) / 16.f*4.f, static_cast<float>(cities.at(4).z - startZ) / 16.f*4.f },
-            { static_cast<float>(cities.at(5).x - startX) / 16.f*4.f, static_cast<float>(cities.at(5).z - startZ) / 16.f*4.f }
-        );
-        es::drawPath(
-            window,
-            { static_cast<float>(cities.at(5).x - startX) / 16.f*4.f, static_cast<float>(cities.at(5).z - startZ) / 16.f*4.f },
             { static_cast<float>(cities.at(0).x - startX) / 16.f*4.f, static_cast<float>(cities.at(0).z - startZ) / 16.f*4.f }
-        );
-        es::drawPath(
-            window,
-            { static_cast<float>(cities.at(0).x - startX) / 16.f*4.f, static_cast<float>(cities.at(0).z - startZ) / 16.f*4.f },
-            { static_cast<float>(cities.at(6).x - startX) / 16.f*4.f, static_cast<float>(cities.at(6).z - startZ) / 16.f*4.f }
         );
 
 

@@ -7,7 +7,7 @@
 #include <fstream>
 #include <sstream>
 
-#define PROJECT_DIR(x) (std::string(PROJECT_SOURCE_DIR) + std::string(x)).c_str()
+#define PROJECT_DIR(x) (std::string(PROJECT_SOURCE_DIR) + x)
 
 void findStructures(int structureType, int mc, int dim, uint64_t seed,
     int x0, int z0, int x1, int z1)
@@ -18,7 +18,7 @@ void findStructures(int structureType, int mc, int dim, uint64_t seed,
     filename << "searched/" << seed << "." << x0 << "." << z0 << ".csv";
     std::cout << filename.str() << "\n";
 
-    if (access(PROJECT_DIR(filename.str()), F_OK) == 0) {
+    if (access(PROJECT_DIR(filename.str()).c_str(), F_OK) == 0) {
         std::cout << "File already exists\n";
         return;
     } else {
@@ -27,7 +27,7 @@ void findStructures(int structureType, int mc, int dim, uint64_t seed,
     }
 
     FILE *fpt;
-    fpt = fopen(PROJECT_DIR(filename.str()), "w+");
+    fpt = fopen(PROJECT_DIR(filename.str()).c_str(), "w+");
     fprintf(fpt, "x,z,ship,looted\n");
 
     // set up a biome generator
