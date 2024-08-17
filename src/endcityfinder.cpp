@@ -12,18 +12,17 @@
 void findStructures(int structureType, int mc, int dim, uint64_t seed,
     int x0, int z0, int x1, int z1)
 {
-    std::cout << "End Cities between x: " << x0 << "-" << x1 << ", " << z0 << "-" << z1 << "\n";
 
     std::ostringstream filename;
     filename << "searched/" << seed << "." << x0 << "." << z0 << ".csv";
-    std::cout << filename.str() << "\n";
+    std::cout << filename.str();
 
     if (access(PROJECT_DIR(filename.str()).c_str(), F_OK) == 0) {
-        std::cout << "File already exists\n";
+        std::cout << " - File already exists\n";
         return;
     } else {
-        std::cout << "File does not exist\n";
-        std::cout << "Searching for cities\n";
+        std::cout << " - File does not exist\n";
+        std::cout << "Searching for cities between x: " << x0 << "-" << x1 << ", " << z0 << "-" << z1 << "\n";
     }
 
     FILE *fpt;
@@ -93,7 +92,7 @@ void findStructures(int structureType, int mc, int dim, uint64_t seed,
                 }
             }
 
-            std::cout << "x: " << pos.x << ", z: " << pos.z << ", ship: " << hasShip;
+            std::cout << "x: " << pos.x << ", z: " << pos.z << ", ship: " << hasShip << "\n";
             fprintf(fpt, "%d,%d,%d,0\n", pos.x, pos.z, hasShip);
         }
     }

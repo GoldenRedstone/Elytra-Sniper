@@ -7,7 +7,6 @@
 
 std::vector<CityLocation> parseCSVFile(std::string filename) {
     std::string path = PROJECT_DIR(filename);
-    std::cout << "Reading file: " << filename << "\n";
     std::ifstream input(path.c_str());
     if (!input.is_open()) {
       std::cerr << "Couldn't read file: " << filename << "\n";
@@ -39,7 +38,7 @@ std::vector<CityLocation> parseCSVFile(std::string filename) {
 
         cities.push_back(newCity);
     }
-
+    
     return cities;
 }
 
@@ -54,9 +53,9 @@ std::vector<CityLocation> readCitiesAround(uint64_t seed, int x, int z) {
 
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
-            std::cout << "Loading chunk " << i << " " << j << "\n";
+            std::cout << "Loading chunk " << i << " " << j;
             filename << "searched/" << seed << "." << r*(rx+i) << "." << r*(rz+j) << ".csv";
-            std::cout << filename.str() << "\n";
+            std::cout << " - " << filename.str() << "\n";
             child = parseCSVFile(filename.str());
             mommy.insert(mommy.end(), child.begin(), child.end());
             filename.str(std::string());
