@@ -10,7 +10,7 @@
 class CityLocation {
 public:
     int x;
-    int y;
+    int z;
     bool hasShip;
     bool looted;
 };

@@ -57,10 +57,14 @@ int main() {
 
         window.draw(mapSprite);
 
+        int scale = 10;
+
         sf::Texture city_icon;
         city_icon.loadFromFile(PROJECT_DIR("assets/city.png"));
         sf::Texture ship_icon;
         ship_icon.loadFromFile(PROJECT_DIR("assets/ship.png"));
+        sf::Texture player_icon;
+        player_icon.loadFromFile(PROJECT_DIR("assets/player.png"));
 
         for (const CityLocation& city : cities) {
 
@@ -79,6 +83,18 @@ int main() {
             sprite.setPosition(mx, mz);
             window.draw(sprite);
         }
+
+        int playerX = startX + 1200;
+        int playerZ = startZ + 1200;
+
+        int mx = (playerX - startX) / 16*4 - scale/2;
+        int mz = (playerZ - startZ) / 16*4 - scale/2;
+
+        sf::Sprite sprite;
+        sprite.setTexture(player_icon);
+        sprite.setScale(3, 3);
+        sprite.setPosition(mx, mz);
+        window.draw(sprite);
 
         ImGui::SFML::Update(window, deltaClock.restart());
         ImGui::SetNextWindowPos(ImVec2(10, 10));

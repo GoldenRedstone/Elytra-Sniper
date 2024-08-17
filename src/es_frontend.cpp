@@ -16,7 +16,7 @@ colorMap_t generate_ColorMap (const MCVersion& mc, uint64_t& seed, const int64_t
     {
         for (uint64_t z = 0; z < CM->at(x).size(); z++) 
         {
-            int biomeID = getBiomeAt(&g, 1, sx+(x*8), 63, sz+(z*8)); // scale, x, y, z 
+            int biomeID = getBiomeAt(&g, 1, sx+(x*16), 63, sz+(z*16)); // scale, x, y, z 
             if (biomeID == small_end_islands)    
                 CM->at(x).at(z) = color_void;
             else if (biomeID == end_barrens)
