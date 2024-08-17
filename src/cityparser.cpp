@@ -38,7 +38,7 @@ std::vector<CityLocation> parseCSVFile(std::string filename) {
 
         cities.push_back(newCity);
     }
-    
+
     return cities;
 }
 
@@ -62,6 +62,19 @@ std::vector<CityLocation> readCitiesAround(uint64_t seed, int x, int z) {
         }
     }
     
-
     return mommy;
+}
+
+std::vector<CityLocation> filterCities(std::vector<CityLocation> cities, bool mustHaveShip = false, bool mustBeUnexplored = false) {
+    std::vector<CityLocation> filteredCities;
+    for (const CityLocation& city : cities) {
+        if (!city.hasShip && mustHaveShip) {
+            continue;
+        }
+        if (!city.looted && mustBeUnexplored) {
+            continue;
+        }
+        filteredCities.push_back(city);
+    }
+    return filteredCities;
 }

@@ -25,4 +25,10 @@ std::vector<CityLocation> readCitiesAround(uint64_t seed, int x, int z);
  * 
  */
 
+std::vector<CityLocation> filterCities(std::vector<CityLocation> cities, bool mustHaveShip, bool mustBeUnexplored);
+/*
+ * Filters cities on either the existance of a ship, not yet visited, or both.
+ */
+
+
 #endif /* CITYPARSER_H */
