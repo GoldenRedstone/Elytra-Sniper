@@ -16,7 +16,7 @@ colorMap_t generate_ColorMap (const MCVersion& mc, uint64_t& seed, const int64_t
     {
         for (uint64_t z = 0; z < CM->at(x).size(); z++) 
         {
-            int biomeID = getBiomeAt(&g, 1, sx+(x*8), 63, sz+(z*8)); // scale, x, y, z 
+            int biomeID = getBiomeAt(&g, 1, sx+(x*16), 63, sz+(z*16)); // scale, x, y, z 
             if (biomeID == small_end_islands)    
                 CM->at(x).at(z) = color_void;
             else if (biomeID == end_barrens)
@@ -88,6 +88,40 @@ void ImGuiTheme() {
     style.GrabRounding = 8.f;
     style.WindowRounding = 8.f;
     style.PopupRounding = 8.f;
+}
+
+sf::RectangleShape createThickLine(const sf::Vector2f& start, const sf::Vector2f& end, float thickness, const sf::Color& color)
+{
+    sf::Vector2f direction = end - start;
+    float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    direction /= length;
+
+    sf::RectangleShape line(sf::Vector2f(length, thickness));
+    line.setFillColor(color);
+
+    float angle = std::atan2(direction.y, direction.x) * 180.f / 3.14159f; // Convert to degrees
+
+    line.setOrigin({0.f, line.getSize().y / 2.f});
+    line.setPosition(start);
+    line.setRotation(angle);
+
+    return line;
+}
+
+void drawPath (sf::RenderWindow& win, const sf::Vector2f& start, const sf::Vector2f& end)
+{
+    win.draw(es::createThickLine(
+        start,
+        end,
+        16.f,
+        { 89, 172, 255, 170 } 
+    ));
+    win.draw(es::createThickLine(
+        start,
+        end,
+        6.f,
+        { 8, 0, 188, 255 }
+    ));
 }
 
 } // namespace es

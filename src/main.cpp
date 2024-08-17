@@ -12,16 +12,15 @@
 #include "es_frontend.hpp"
 
 int main() {
-    // std::vector<CityLocation> cities = parseCSVFile("searched/2438515238773172647.-5000.0.csv");
-    std::vector<CityLocation> cities = readCitiesAround(2438515238773172647, -1200, 4600);
-
-    // Print out our table
-    for (const CityLocation& city : cities) {
-        std::cout << city.x << ", " << city.z << ", " << city.hasShip << ", " << city.looted;
-        std::cout << "\n";
-    }
-
-    printf("Hello World!\n");
+    std::vector<CityLocation> cities = {
+        { -1208, 4248, 0, 0 },  // 0
+        { 376, 5176, 0, 0 },    // 1
+        { 408, 4520, 0, 0 },    // 2
+        { 56, 4856, 1, 0 },     // 3
+        { 40, 4216, 1, 0 },     // 4
+        { -616, 4248, 1, 0 },   // 5
+        { -1224, 4840, 0, 0 }   // 6
+    };
 
     sf::RenderWindow window(sf::VideoMode(600, 600), "Elytra Sniper");
     window.setPosition({600, 20});
@@ -34,9 +33,14 @@ int main() {
     MCVersion mc = MC_1_20;
     uint64_t seed = 2438515238773172647;
     int64_t startX = -1800, startZ = 4000;
+    
     es::colorMap_t colorMap { es::generate_ColorMap(mc, seed, startX, startZ) }; 
     std::shared_ptr<sf::RenderTexture> map { es::generate_map(window, colorMap) };
     sf::Sprite mapSprite { map->getTexture() };
+    sf::Texture city_icon;
+    city_icon.loadFromFile("assets/city.png");
+    sf::Texture ship_icon;
+    ship_icon.loadFromFile("assets/ship.png");
     
     es::ImGuiTheme();
     sf::Clock deltaClock;
@@ -57,29 +61,6 @@ int main() {
 
         window.draw(mapSprite);
 
-        sf::Texture city_icon;
-        city_icon.loadFromFile(PROJECT_DIR("assets/city.png"));
-        sf::Texture ship_icon;
-        ship_icon.loadFromFile(PROJECT_DIR("assets/ship.png"));
-
-        for (const CityLocation& city : cities) {
-
-            int mx = (city.x - startX) / 16*4 - scale/2;
-            int mz = (city.z - startZ) / 16*4 - scale/2;
-
-            // sf::CircleShape circle;
-            // circle.setRadius(scale);
-            // circle.setFillColor((city.hasShip) ? sf::Color::Green : sf::Color::Red);
-            // circle.setPosition(mx, mz);
-            // window.draw(circle);
-
-            sf::Sprite sprite;
-            sprite.setTexture((city.hasShip) ? ship_icon : city_icon);
-            sprite.setScale(3, 3);
-            sprite.setPosition(mx, mz);
-            window.draw(sprite);
-        }
-
         ImGui::SFML::Update(window, deltaClock.restart());
         ImGui::SetNextWindowPos(ImVec2(10, 10));
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
@@ -91,6 +72,7 @@ int main() {
                 static bool buttonPressed = false;
                 if (ImGui::IsItemActive() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) buttonPressed = true;
             ImGui::PopItemWidth();
+            
             if (ImGui::Button("Regenerate") || buttonPressed)
             {
                 colorMap = es::generate_ColorMap(mc, seed, startX, startZ); 
@@ -99,9 +81,59 @@ int main() {
                 buttonPressed = false;
             }
         ImGui::End();
-        
         ImGui::SFML::Render(window);
-        
+
+        es::drawPath(
+            window,
+            { static_cast<float>(window.getSize().x/2), static_cast<float>(window.getSize().y/2) },
+            { static_cast<float>(cities.at(1).x - startX) / 16.f*4.f, static_cast<float>(cities.at(1).y - startZ) / 16.f*4.f }
+        );
+        es::drawPath(
+            window,
+            { static_cast<float>(cities.at(1).x - startX) / 16.f*4.f, static_cast<float>(cities.at(1).y - startZ) / 16.f*4.f },
+            { static_cast<float>(cities.at(3).x - startX) / 16.f*4.f, static_cast<float>(cities.at(3).y - startZ) / 16.f*4.f }
+        );
+        es::drawPath(
+            window,
+            { static_cast<float>(cities.at(3).x - startX) / 16.f*4.f, static_cast<float>(cities.at(3).y - startZ) / 16.f*4.f },
+            { static_cast<float>(cities.at(2).x - startX) / 16.f*4.f, static_cast<float>(cities.at(2).y - startZ) / 16.f*4.f }
+        );
+        es::drawPath(
+            window,
+            { static_cast<float>(cities.at(2).x - startX) / 16.f*4.f, static_cast<float>(cities.at(2).y - startZ) / 16.f*4.f },
+            { static_cast<float>(cities.at(4).x - startX) / 16.f*4.f, static_cast<float>(cities.at(4).y - startZ) / 16.f*4.f }
+        );
+        es::drawPath(
+            window,
+            { static_cast<float>(cities.at(4).x - startX) / 16.f*4.f, static_cast<float>(cities.at(4).y - startZ) / 16.f*4.f },
+            { static_cast<float>(cities.at(5).x - startX) / 16.f*4.f, static_cast<float>(cities.at(5).y - startZ) / 16.f*4.f }
+        );
+        es::drawPath(
+            window,
+            { static_cast<float>(cities.at(5).x - startX) / 16.f*4.f, static_cast<float>(cities.at(5).y - startZ) / 16.f*4.f },
+            { static_cast<float>(cities.at(0).x - startX) / 16.f*4.f, static_cast<float>(cities.at(0).y - startZ) / 16.f*4.f }
+        );
+        es::drawPath(
+            window,
+            { static_cast<float>(cities.at(0).x - startX) / 16.f*4.f, static_cast<float>(cities.at(0).y - startZ) / 16.f*4.f },
+            { static_cast<float>(cities.at(6).x - startX) / 16.f*4.f, static_cast<float>(cities.at(6).y - startZ) / 16.f*4.f }
+        );
+
+
+        for (const CityLocation& city : cities) {
+            int scale = 10;
+
+            int mx = (city.x - startX) / 16*4;
+            int my = (city.y - startZ) / 16*4;
+
+            sf::Sprite sprite;
+            sprite.setTexture((city.hasShip) ? ship_icon : city_icon);
+            sprite.setScale(6, 6);
+            sprite.setPosition(mx, my);
+            sprite.setOrigin(sprite.getTexture()->getSize().x / 2.f, sprite.getTexture()->getSize().y / 2.f);
+            window.draw(sprite);
+        }
+
         window.display();
     }
 
