@@ -2,10 +2,10 @@
 #include "generator.h"
 
 namespace es{
-colorMap_t generate_ColorMap (const uint64_t& seed, const int64_t& sx, const int64_t& sz)
+colorMap_t generate_ColorMap (const MCVersion& mc, uint64_t& seed, const int64_t& sx, const int64_t& sz)
 {
     Generator g;
-    setupGenerator(&g, MC_1_20, 0);
+    setupGenerator(&g, mc, 0);
     applySeed(&g, DIM_END, seed);
     
     colorMap_t CM { std::make_shared<std::array<std::array<sf::Color, 150>, 150>>() };

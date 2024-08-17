@@ -19,9 +19,10 @@ int main()
         return 1;
     }
 
+    MCVersion mc = MC_1_20;
     uint64_t seed = 1;
     int64_t startX = -1800, startZ = 4000;
-    es::colorMap_t colorMap { es::generate_ColorMap(seed, startX, startZ) }; 
+    es::colorMap_t colorMap { es::generate_ColorMap(mc, seed, startX, startZ) }; 
     std::shared_ptr<sf::RenderTexture> map { es::generate_map(window, colorMap) };
     sf::Sprite mapSprite { map->getTexture() };
         
@@ -55,7 +56,7 @@ int main()
             ImGui::PopItemWidth();
             if (ImGui::Button("Regenerate"))
             {
-                colorMap = es::generate_ColorMap(seed, startX, startZ); 
+                colorMap = es::generate_ColorMap(mc, seed, startX, startZ); 
                 map =  es::generate_map(window, colorMap);
                 mapSprite.setTexture(map->getTexture());
             }
