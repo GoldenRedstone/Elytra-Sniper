@@ -16,7 +16,13 @@ public:
 };
 
 std::vector<CityLocation> parseCSVFile(std::string filename);
+/*
+ * Parses a single CSV file and returns a vector of the cities stored in it.
+ */
 
 std::vector<CityLocation> readCitiesAround(uint64_t seed, int x, int z);
+/*
+ * 
+ */
 
 #endif /* CITYPARSER_H */

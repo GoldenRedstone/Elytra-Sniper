@@ -7,6 +7,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#define PROJECT_DIR(x) std::string(PROJECT_SOURCE_DIR) + x
+
 void findStructures(int structureType, int mc, int dim, uint64_t seed,
     int x0, int z0, int x1, int z1);
 
