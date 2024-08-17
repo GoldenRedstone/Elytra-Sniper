@@ -17,7 +17,7 @@ int main() {
 
     // Print out our table
     for (const CityLocation& city : cities) {
-        std::cout << city.x << ", " << city.y << ", " << city.hasShip << ", " << city.looted;
+        std::cout << city.x << ", " << city.z << ", " << city.hasShip << ", " << city.looted;
         std::cout << "\n";
     }
 
@@ -32,7 +32,7 @@ int main() {
     }
 
     MCVersion mc = MC_1_20;
-    uint64_t seed = 1;
+    uint64_t seed = 2438515238773172647;
     int64_t startX = -1800, startZ = 4000;
     es::colorMap_t colorMap { es::generate_ColorMap(mc, seed, startX, startZ) }; 
     std::shared_ptr<sf::RenderTexture> map { es::generate_map(window, colorMap) };
@@ -63,21 +63,20 @@ int main() {
         ship_icon.loadFromFile(PROJECT_DIR("assets/ship.png"));
 
         for (const CityLocation& city : cities) {
-            int scale = 10;
 
-            int mx = (city.x + 2500) / 16*4 - scale/2;
-            int my = (city.y - 4000) / 16*4 - scale/2;
+            int mx = (city.x - startX) / 16*4 - scale/2;
+            int mz = (city.z - startZ) / 16*4 - scale/2;
 
             // sf::CircleShape circle;
             // circle.setRadius(scale);
             // circle.setFillColor((city.hasShip) ? sf::Color::Green : sf::Color::Red);
-            // circle.setPosition(mx, my);
+            // circle.setPosition(mx, mz);
             // window.draw(circle);
 
             sf::Sprite sprite;
             sprite.setTexture((city.hasShip) ? ship_icon : city_icon);
             sprite.setScale(3, 3);
-            sprite.setPosition(mx, my);
+            sprite.setPosition(mx, mz);
             window.draw(sprite);
         }
 

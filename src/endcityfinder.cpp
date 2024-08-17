@@ -95,7 +95,7 @@ void findStructures(int structureType, int mc, int dim, uint64_t seed,
     fclose(fpt);
 }
 
-int findStructuresAround(uint64_t seed, int x, int z, int mc) {
+void findStructuresAround(uint64_t seed, int x, int z, int mc) {
     int r = 5000;
 
     int rx = x/r;

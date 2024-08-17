@@ -33,12 +33,13 @@ std::vector<CityLocation> parseCSVFile(std::string filename) {
 
         CityLocation newCity;
         newCity.x = std::stoi(row.at(0));
-        newCity.y = std::stoi(row.at(1));
+        newCity.z = std::stoi(row.at(1));
         newCity.hasShip = row.at(2) == "1";
         newCity.looted = row.at(3) == "1";
 
         cities.push_back(newCity);
     }
+
     return cities;
 }
 
