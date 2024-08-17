@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <array>
+#include "endcityfinder.hpp"
 #include "cityparser.hpp"
 #include "es_frontend.hpp"
 
@@ -43,6 +44,10 @@ int main() {
     es::colorMap_t colorMap { es::generate_ColorMap(mc, seed, startX, startZ) }; 
     std::shared_ptr<sf::RenderTexture> map { es::generate_map(window, colorMap) };
     sf::Sprite mapSprite { map->getTexture() };
+
+    // Find and load the structures around the player.
+    findStructuresAround(seed, playerX, playerZ, mc);
+    cities = readCitiesAround(seed, playerX, playerZ);
 
     // Load icons
     sf::Texture city_icon;
@@ -134,9 +139,13 @@ int main() {
             {
                 startX = playerX - 1200;
                 startZ = playerZ - 1200;
+                // Do the expensive calculations again
                 colorMap = es::generate_ColorMap(mc, seed, startX, startZ);
                 map =  es::generate_map(window, colorMap);
                 mapSprite.setTexture(map->getTexture());
+                // Find and load the structures around the player.
+                findStructuresAround(seed, playerX, playerZ, mc);
+                cities = readCitiesAround(seed, playerX, playerZ);
                 buttonPressed = false;
             }
 
