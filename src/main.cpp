@@ -69,13 +69,12 @@ public:
     bool looted;
 };
 
-int main() {
-    std::string filename{"searched/2438515238773172647.-5000.0.csv"};
+std::vector<CityLocation> parseCSVFile(std::string filename) {
     std::ifstream input{filename};
 
     if (!input.is_open()) {
     std::cerr << "Couldn't read file: " << filename << "\n";
-        return 1; 
+        return {};
     }
 
     std::vector<CityLocation> cities;
@@ -94,11 +93,6 @@ int main() {
         std::istringstream ss(std::move(line));
         std::vector<std::string> row;
 
-        // if (!cities.empty()) {
-        //     // We expect each row to be as big as the first row
-        //     row.reserve(cities.front().size());
-        // }
-        // std::getline can split on other characters, here we use ','
         for (std::string value; std::getline(ss, value, ',');) {
             row.push_back(std::move(value));
         }
@@ -117,6 +111,36 @@ int main() {
 
         cities.push_back(newCity);
     }
+    return cities;
+}
+
+std::vector<CityLocation> readCitiesAround(uint64_t seed, int x, int z) {
+    std::vector<CityLocation> mommy;
+    std::vector<CityLocation> child;
+    std::ostringstream filename;
+
+    int r = 5000;
+    int rx = x/r;
+    int rz = z/r;
+
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            std::cout << "Loading chunk " << i << " " << j << "\n";
+            filename << "searched/" << seed << "." << r*(rx+i) << "." << r*(rz+j) << ".csv";
+            std::cout << filename.str() << "\n";
+            child = parseCSVFile(filename.str());
+            mommy.insert(mommy.end(), child.begin(), child.end());
+            filename.str(std::string());
+        }
+    }
+    
+
+    return mommy;
+}
+
+int main() {
+    // std::vector<CityLocation> cities = parseCSVFile("searched/2438515238773172647.-5000.0.csv");
+    std::vector<CityLocation> cities = readCitiesAround(2438515238773172647, -1200, 4600);
 
     // Print out our table
     for (const CityLocation& city : cities) {
