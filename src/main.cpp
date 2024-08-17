@@ -101,18 +101,28 @@ int main() {
 
         window.draw(mapSprite);
 
+        sf::Texture city_icon;
+        city_icon.loadFromFile("assets/city.png");
+        sf::Texture ship_icon;
+        ship_icon.loadFromFile("assets/ship.png");
+
         for (const CityLocation& city : cities) {
-            int mx = (city.x + 2500) / 16*4;
-            int my = (city.y - 4000) / 16*4;
-            sf::CircleShape circle;
-            circle.setRadius(10);
-            if (city.hasShip) {
-                circle.setFillColor(sf::Color::Green);
-            } else {
-                circle.setFillColor(sf::Color::Red);
-            }
-            circle.setPosition(mx, my);
-            window.draw(circle);
+            int scale = 10;
+
+            int mx = (city.x + 2500) / 16*4 - scale/2;
+            int my = (city.y - 4000) / 16*4 - scale/2;
+
+            // sf::CircleShape circle;
+            // circle.setRadius(scale);
+            // circle.setFillColor((city.hasShip) ? sf::Color::Green : sf::Color::Red);
+            // circle.setPosition(mx, my);
+            // window.draw(circle);
+
+            sf::Sprite sprite;
+            sprite.setTexture((city.hasShip) ? ship_icon : city_icon);
+            sprite.setScale(3, 3);
+            sprite.setPosition(mx, my);
+            window.draw(sprite);
         }
 
         ImGui::SFML::Update(window, deltaClock.restart());
