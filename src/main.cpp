@@ -12,16 +12,20 @@
 #include "es_frontend.hpp"
 
 int main() {
-    // std::vector<CityLocation> cities = parseCSVFile("searched/2438515238773172647.-5000.0.csv");
-    std::vector<CityLocation> cities = readCitiesAround(2438515238773172647, -1200, 4600);
+    std::vector<CityLocation> cities = {
+        { -1208, 4248, 0, 0 },
+        { 376, 5176, 0, 0 },
+        { 408, 4520, 0, 0 },
+        { 56, 4856, 1, 0 },
+        { 40, 4216, 1, 0 },
+        { -616, 4248, 1, 0 },
+        { -1224, 4840, 0, 0 }
+    };
 
-    // Print out our table
     for (const CityLocation& city : cities) {
         std::cout << city.x << ", " << city.y << ", " << city.hasShip << ", " << city.looted;
         std::cout << "\n";
     }
-
-    printf("Hello World!\n");
 
     sf::RenderWindow window(sf::VideoMode(600, 600), "Elytra Sniper");
     window.setPosition({600, 20});
@@ -34,9 +38,14 @@ int main() {
     MCVersion mc = MC_1_20;
     uint64_t seed = 1;
     int64_t startX = -1800, startZ = 4000;
+    
     es::colorMap_t colorMap { es::generate_ColorMap(mc, seed, startX, startZ) }; 
     std::shared_ptr<sf::RenderTexture> map { es::generate_map(window, colorMap) };
     sf::Sprite mapSprite { map->getTexture() };
+    sf::Texture city_icon;
+    city_icon.loadFromFile("assets/city.png");
+    sf::Texture ship_icon;
+    ship_icon.loadFromFile("assets/ship.png");
     
     es::ImGuiTheme();
     sf::Clock deltaClock;
@@ -57,22 +66,13 @@ int main() {
 
         window.draw(mapSprite);
 
-        sf::Texture city_icon;
-        city_icon.loadFromFile("assets/city.png");
-        sf::Texture ship_icon;
-        ship_icon.loadFromFile("assets/ship.png");
+
 
         for (const CityLocation& city : cities) {
             int scale = 10;
 
-            int mx = (city.x + 2500) / 16*4 - scale/2;
-            int my = (city.y - 4000) / 16*4 - scale/2;
-
-            // sf::CircleShape circle;
-            // circle.setRadius(scale);
-            // circle.setFillColor((city.hasShip) ? sf::Color::Green : sf::Color::Red);
-            // circle.setPosition(mx, my);
-            // window.draw(circle);
+            int mx = (city.x - startX) / 16*4;
+            int my = (city.y - startZ) / 16*4;
 
             sf::Sprite sprite;
             sprite.setTexture((city.hasShip) ? ship_icon : city_icon);
@@ -92,6 +92,7 @@ int main() {
                 static bool buttonPressed = false;
                 if (ImGui::IsItemActive() || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) buttonPressed = true;
             ImGui::PopItemWidth();
+            
             if (ImGui::Button("Regenerate") || buttonPressed)
             {
                 colorMap = es::generate_ColorMap(mc, seed, startX, startZ); 
@@ -100,8 +101,20 @@ int main() {
                 buttonPressed = false;
             }
         ImGui::End();
-        
         ImGui::SFML::Render(window);
+
+        window.draw(es::createThickLine(
+            { 100.f, 100.f },
+            { 500.f, 500.f },
+            8.f,
+            { 255, 0, 0, 255 }
+        ));
+        window.draw(es::createThickLine(
+            { 100.f, 100.f },
+            { 500.f, 500.f },
+            4.f,
+            { 0, 255, 0, 255 }
+        ));
         
         window.display();
     }
