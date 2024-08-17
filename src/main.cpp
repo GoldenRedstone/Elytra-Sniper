@@ -50,15 +50,18 @@ int main()
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
         ImGui::Begin("User Input", nullptr, window_flags);
             ImGui::PushItemWidth(100);
-            ImGui::InputScalar("Seed", ImGuiDataType_U64, &seed, nullptr, nullptr, "%lu");
-            ImGui::InputScalar("startX", ImGuiDataType_S64, &startX, nullptr, nullptr, "%ld");
-            ImGui::InputScalar("startZ", ImGuiDataType_S64, &startZ, nullptr, nullptr, "%ld");
+                ImGui::InputScalar("Seed", ImGuiDataType_U64, &seed, nullptr, nullptr, "%lu");
+                ImGui::InputScalar("startX", ImGuiDataType_S64, &startX, nullptr, nullptr, "%ld");
+                ImGui::InputScalar("startZ", ImGuiDataType_S64, &startZ, nullptr, nullptr, "%ld");
+                static bool buttonPressed = false;
+                if (ImGui::IsItemActive() || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) buttonPressed = true;
             ImGui::PopItemWidth();
-            if (ImGui::Button("Regenerate"))
+            if (ImGui::Button("Regenerate") || buttonPressed)
             {
                 colorMap = es::generate_ColorMap(mc, seed, startX, startZ); 
                 map =  es::generate_map(window, colorMap);
                 mapSprite.setTexture(map->getTexture());
+                buttonPressed = false;
             }
         ImGui::End();
         
