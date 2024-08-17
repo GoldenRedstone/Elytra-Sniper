@@ -12,7 +12,7 @@ namespace es{
     const sf::Color color_high { 195, 189, 89 };
     using colorMap_t = std::shared_ptr<std::array<std::array<sf::Color, 150>, 150>>;
 
-    colorMap_t generate_ColorMap ();
+    colorMap_t generate_ColorMap (const uint64_t& seed, const int64_t& sx, const int64_t& sz);
     std::shared_ptr<sf::RenderTexture> generate_map (const sf::Window& win, const es::colorMap_t& CM);
 
 }

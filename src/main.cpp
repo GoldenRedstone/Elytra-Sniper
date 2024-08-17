@@ -8,8 +8,6 @@
 #include <array>
 
 #include "es_frontend.hpp"
-#include "endcityfinder.h"
-
 
 int main()
 {
@@ -21,12 +19,12 @@ int main()
         return 1;
     }
 
-    es::colorMap_t colorMap { es::generate_ColorMap() }; 
+    uint64_t seed = 1;
+    int64_t startX = -1800, startZ = 4000;
+    es::colorMap_t colorMap { es::generate_ColorMap(seed, startX, startZ) }; 
     std::shared_ptr<sf::RenderTexture> map { es::generate_map(window, colorMap) };
     sf::Sprite mapSprite { map->getTexture() };
-    
-    findStructuresAround(2438515238773172647, -1200, 4600, MC_1_20);
-    
+        
     sf::Clock deltaClock;
     while (window.isOpen()) 
     {
@@ -36,6 +34,9 @@ int main()
             ImGui::SFML::ProcessEvent(window, event);
             if (event.type == sf::Event::Closed)
                 goto shutdown; // I am not scared a litte goto from time to time!
+            if (event.type == sf::Event::KeyPressed)
+                if (event.key.code == sf::Keyboard::Escape)
+                    goto shutdown;
         }
 
         window.clear();
@@ -43,10 +44,23 @@ int main()
         window.draw(mapSprite);
 
         ImGui::SFML::Update(window, deltaClock.restart());
-        ImGui::ShowDemoWindow();
-        ImGui::Begin("Hello, world!");
-        ImGui::Button("Look at this pretty button");
+        
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
+        ImGui::Begin("User Input", nullptr, window_flags);
+            ImGui::PushItemWidth(100);
+            ImGui::InputScalar("Seed", ImGuiDataType_U64, &seed, nullptr, nullptr, "%lu");
+            ImGui::InputScalar("startX", ImGuiDataType_S64, &startX, nullptr, nullptr, "%ld");
+            ImGui::InputScalar("startZ", ImGuiDataType_S64, &startZ, nullptr, nullptr, "%ld");
+            ImGui::PopItemWidth();
+            if (ImGui::Button("Regenerate"))
+            {
+                colorMap = es::generate_ColorMap(seed, startX, startZ); 
+                map =  es::generate_map(window, colorMap);
+                mapSprite.setTexture(map->getTexture());
+            }
         ImGui::End();
+        
         ImGui::SFML::Render(window);
         
         window.display();

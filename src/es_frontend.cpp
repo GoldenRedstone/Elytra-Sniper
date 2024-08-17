@@ -2,10 +2,9 @@
 #include "generator.h"
 
 namespace es{
-colorMap_t generate_ColorMap ()
+colorMap_t generate_ColorMap (const uint64_t& seed, const int64_t& sx, const int64_t& sz)
 {
     Generator g;
-    uint64_t seed = 1;
     setupGenerator(&g, MC_1_20, 0);
     applySeed(&g, DIM_END, seed);
     
@@ -14,7 +13,7 @@ colorMap_t generate_ColorMap ()
     {
         for (uint64_t z = 0; z < CM->at(x).size(); z++) 
         {
-            int biomeID = getBiomeAt(&g, 1, -1800+(x*8), 63, 4000+(z*8)); // scale, x, y, z 
+            int biomeID = getBiomeAt(&g, 1, sx+(x*8), 63, sz+(z*8)); // scale, x, y, z 
             if (biomeID == small_end_islands)    
                 CM->at(x).at(z) = color_void;
             else if (biomeID == end_barrens)
