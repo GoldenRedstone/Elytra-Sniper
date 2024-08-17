@@ -1,9 +1,9 @@
 #ifndef CITYPARSER_H
 #define CITYPARSER_H
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include <string>
+#include <vector>
+#include <stdint.h>
 
 class CityLocation {
 public:

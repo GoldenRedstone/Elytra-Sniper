@@ -8,7 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <array>
-#include "cityparser.cpp"
+#include "cityparser.hpp"
 
 namespace ES{
     const sf::Color color_void { 0, 0, 42 };
