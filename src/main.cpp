@@ -5,12 +5,24 @@
 #include "finders.h"
 #include <memory>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <array>
-
+#include "cityparser.hpp"
 #include "es_frontend.hpp"
 
-int main()
-{
+int main() {
+    // std::vector<CityLocation> cities = parseCSVFile("searched/2438515238773172647.-5000.0.csv");
+    std::vector<CityLocation> cities = readCitiesAround(2438515238773172647, -1200, 4600);
+
+    // Print out our table
+    for (const CityLocation& city : cities) {
+        std::cout << city.x << ", " << city.y << ", " << city.hasShip << ", " << city.looted;
+        std::cout << "\n";
+    }
+
+    printf("Hello World!\n");
+
     sf::RenderWindow window(sf::VideoMode(600, 600), "Elytra Sniper");
     window.setPosition({600, 20});
     window.setFramerateLimit(60);
@@ -43,6 +55,30 @@ int main()
         window.clear();
 
         window.draw(mapSprite);
+
+        sf::Texture city_icon;
+        city_icon.loadFromFile("assets/city.png");
+        sf::Texture ship_icon;
+        ship_icon.loadFromFile("assets/ship.png");
+
+        for (const CityLocation& city : cities) {
+            int scale = 10;
+
+            int mx = (city.x + 2500) / 16*4 - scale/2;
+            int my = (city.y - 4000) / 16*4 - scale/2;
+
+            // sf::CircleShape circle;
+            // circle.setRadius(scale);
+            // circle.setFillColor((city.hasShip) ? sf::Color::Green : sf::Color::Red);
+            // circle.setPosition(mx, my);
+            // window.draw(circle);
+
+            sf::Sprite sprite;
+            sprite.setTexture((city.hasShip) ? ship_icon : city_icon);
+            sprite.setScale(3, 3);
+            sprite.setPosition(mx, my);
+            window.draw(sprite);
+        }
 
         ImGui::SFML::Update(window, deltaClock.restart());
         

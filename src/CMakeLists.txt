@@ -12,4 +12,3 @@ file(GLOB_RECURSE HEADER *.hpp)
 add_executable(ESniper ${SRC} ${HEADER} ${IMGUI_SOURCES})
 
 install(TARGETS ESniper DESTINATION out)
-
