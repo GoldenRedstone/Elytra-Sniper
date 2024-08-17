@@ -12,6 +12,8 @@
 #include "es_frontend.hpp"
 
 int main() {
+
+    // Create temporary cities
     std::vector<CityLocation> cities = {
         { -1208, 4248, 0, 0 },  // 0
         { 376, 5176, 0, 0 },    // 1
@@ -22,6 +24,7 @@ int main() {
         { -1224, 4840, 0, 0 }   // 6
     };
 
+    // Set up window properties
     sf::RenderWindow window(sf::VideoMode(600, 600), "Elytra Sniper");
     window.setPosition({600, 20});
     window.setFramerateLimit(60);
@@ -30,25 +33,32 @@ int main() {
         return 1;
     }
 
+    // Default variables. Most of these can be changed in the program.
     MCVersion mc = MC_1_20;
     uint64_t seed = 2438515238773172647;
     uint64_t startX = -1800, startZ = 4000;
     uint64_t playerX = startX + 1200, playerZ = startZ + 1200;
-    
+
+    // Do expensive rendering once and save to a texture.
     es::colorMap_t colorMap { es::generate_ColorMap(mc, seed, startX, startZ) }; 
     std::shared_ptr<sf::RenderTexture> map { es::generate_map(window, colorMap) };
     sf::Sprite mapSprite { map->getTexture() };
+
+    // Load icons
     sf::Texture city_icon;
-    city_icon.loadFromFile("assets/city.png");
+    city_icon.loadFromFile(PROJECT_DIR("assets/city.png"));
     sf::Texture ship_icon;
-    ship_icon.loadFromFile("assets/ship.png");
+    ship_icon.loadFromFile(PROJECT_DIR("assets/ship.png"));
     sf::Texture player_icon;
-    player_icon.loadFromFile("assets/player.png");
+    player_icon.loadFromFile(PROJECT_DIR("assets/player.png"));
     
+    // Start loop
     es::ImGuiTheme();
     sf::Clock deltaClock;
     while (window.isOpen()) 
-    {
+    {   
+
+        // Shutdown when the window is closed or escape is pressed.
         sf::Event event;
         while (window.pollEvent(event)) 
         {
@@ -60,12 +70,12 @@ int main() {
                     goto shutdown;
         }
 
+        // Draw the screen
         window.clear();
 
-        window.draw(mapSprite);
+        window.draw(mapSprite);     // Draw the saved map texture
 
-
-
+        // Draw lines connecting the cities
         for (int i = 0; i < cities.size()-1; i++) {
             es::drawPath(
                 window,
@@ -73,23 +83,27 @@ int main() {
                 { static_cast<float>(cities.at(i+1).x - startX) / 16.f*4.f, static_cast<float>(cities.at(i+1).z - startZ) / 16.f*4.f }
             );
         }
-
+        // Draw one more line to the player
         es::drawPath(
             window,
             { static_cast<float>(playerX - startX) / 16.f*4.f, static_cast<float>(playerZ - startZ) / 16.f*4.f },
             { static_cast<float>(cities.at(0).x - startX) / 16.f*4.f, static_cast<float>(cities.at(0).z - startZ) / 16.f*4.f }
         );
 
+        // Some variables control drawing
         int scale = 10;
         int mx = (playerX - startX) / 16*4 - scale/2;
         int mz = (playerZ - startZ) / 16*4 - scale/2;
+
+        // Draw the player dot
         sf::Sprite sprite;
         sprite.setTexture(player_icon);
         sprite.setScale(3, 3);
         sprite.setPosition(mx, mz);
         window.draw(sprite);
-        for (const CityLocation& city : cities) {
 
+        // Draw each city
+        for (const CityLocation& city : cities) {
             int mx = (city.x - startX) / 16*4 - scale/2;
             int mz = (city.z - startZ) / 16*4 - scale/2;
 
@@ -100,6 +114,7 @@ int main() {
             window.draw(sprite);
         }
 
+        // Draw the GUI
         ImGui::SFML::Update(window, deltaClock.restart());
         ImGui::SetNextWindowPos(ImVec2(10, 10));
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
@@ -114,7 +129,7 @@ int main() {
                 static bool buttonPressed = false;
                 if (ImGui::IsItemActive() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) buttonPressed = true;
             ImGui::PopItemWidth();
-            
+            // When the regenerate function is clicked, update the values.
             if (ImGui::Button("Regenerate") || buttonPressed)
             {
                 startX = playerX - 1200;
@@ -124,11 +139,13 @@ int main() {
                 mapSprite.setTexture(map->getTexture());
                 buttonPressed = false;
             }
+
         ImGui::End();
         ImGui::SFML::Render(window);
 
         window.display();
     }
+
 
 shutdown:
     window.close();

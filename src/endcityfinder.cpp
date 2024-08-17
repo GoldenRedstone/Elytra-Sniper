@@ -63,7 +63,7 @@ void findStructures(int structureType, int mc, int dim, uint64_t seed,
                 continue; // structure is outside the specified area
             if (!isViableStructurePos(structureType, &g, pos.x, pos.z, 0))
                 continue; // biomes are not viable
-            if (!isViableEndCityTerrain(&g, &sn, pos.x, pos.z))
+            if ((structureType==End_City) && !isViableEndCityTerrain(&g, &sn, pos.x, pos.z))
                 // end cities have a dedicated terrain checker
                 continue;
             else if (mc >= MC_1_18)
