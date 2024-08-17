@@ -68,7 +68,7 @@ void ImGuiTheme() {
     colors[ImGuiCol_ButtonHovered]    = ImVec4(0.9f, 0.9f, 0.9f, 1.0f); // Slightly lighter gray on hover
     colors[ImGuiCol_ButtonActive]     = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // White button active
     // Frame colors
-    colors[ImGuiCol_FrameBg]          = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // White frame background
+    colors[ImGuiCol_FrameBg]          = ImVec4(0.8f, 0.8f, 0.8f, 0.8f); // White frame background
     colors[ImGuiCol_FrameBgHovered]   = ImVec4(0.9f, 0.9f, 0.9f, 1.0f); // Slightly darker gray on hover
     colors[ImGuiCol_FrameBgActive]    = ImVec4(0.8f, 0.8f, 0.8f, 1.0f); // Light gray active frame background
     // Tab colors
