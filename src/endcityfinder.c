@@ -95,35 +95,16 @@ void findStructures(int structureType, int mc, int dim, uint64_t seed,
     fclose(fpt);
 }
 
-int main()
-{   
-    uint64_t seed = 2438515238773172647;
-    int mc = MC_1_20;
-    int dim = DIM_END;
+int findStructuresAround(uint64_t seed, int x, int z, int mc) {
     int r = 5000;
-    int start_x = 0, start_z = 0;
-    int x = (start_x / r) * r;
-    int z = (start_z / r) * r;
-    printf("Seed: %" PRIu64 "\n", seed);
 
-    // Centre
-    findStructures(End_City, mc, dim, seed, x, z, x+r, z+r);
-    // N
-    findStructures(End_City, mc, dim, seed, x, z-r, x+r, z);
-    // NE
-    findStructures(End_City, mc, dim, seed, x+r, z-r, x+2*r, z);
-    // E
-    findStructures(End_City, mc, dim, seed, x+r, z, x+2*r, z+r);
-    // SE
-    findStructures(End_City, mc, dim, seed, x+r, z+r, x+2*r, z+2*r);
-    // S
-    findStructures(End_City, mc, dim, seed, x, z+r, x+r, z+2*r);
-    // SW
-    findStructures(End_City, mc, dim, seed, x-r, z+r, x, z+2*r);
-    // W
-    findStructures(End_City, mc, dim, seed, x-r, z, x, z+r);
-    // NW
-    findStructures(End_City, mc, dim, seed, x-r, z-r, x, z);
+    int rx = x/r;
+    int rz = z/r;
 
-    return 0;
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            findStructures(End_City, mc, DIM_END, seed, r*(rx+i), r*(rz+j), r*(rx+i+1), r*(rz+j+1));
+        }
+    }
+
 }

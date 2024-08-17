@@ -9,58 +9,7 @@
 #include <sstream>
 #include <array>
 #include "cityparser.hpp"
-
-namespace ES{
-    const sf::Color color_void { 0, 0, 42 };
-    const sf::Color color_barr { 90, 90, 72 };
-    const sf::Color color_midl { 235, 248, 182 };
-    const sf::Color color_high { 195, 189, 89 };
-    using colorMap_t = std::shared_ptr<std::array<std::array<sf::Color, 150>, 150>>;
-
-    ES::colorMap_t generate_ColorMap ()
-    {
-        Generator g;
-        uint64_t seed = 2438515238773172647;
-        setupGenerator(&g, MC_1_20, 0);
-        applySeed(&g, DIM_END, seed);
-        
-        ES::colorMap_t CM { std::make_shared<std::array<std::array<sf::Color, 150>, 150>>() };
-        for (uint64_t x = 0; x < CM->size(); x++)
-        {
-            for (uint64_t z = 0; z < CM->at(x).size(); z++) 
-            {
-                int biomeID = getBiomeAt(&g, 1, -2500+(x*16), 63, 4000+(z*16)); // scale, x, y, z 
-                if (biomeID == small_end_islands)    
-                    CM->at(x).at(z) = ES::color_void;
-                else if (biomeID == end_barrens)
-                    CM->at(x).at(z) = ES::color_barr;
-                else if (biomeID == end_midlands)
-                    CM->at(x).at(z) = ES::color_midl;
-                else if (biomeID == end_highlands)
-                    CM->at(x).at(z) = ES::color_high;
-            }
-        }
-        return CM;
-    }
-
-    std::shared_ptr<sf::RenderTexture> generate_map (const sf::Window& win, const ES::colorMap_t& CM)
-    {
-        std::shared_ptr<sf::RenderTexture> map { std::make_shared<sf::RenderTexture>() };
-        map->create(win.getSize().x, win.getSize().y);
-        map->clear();
-        for (uint64_t x = 0; x < CM->size(); x++)
-        {
-            for (uint64_t z = 0; z < CM->at(x).size(); z++) 
-            {
-                sf::RectangleShape rect {{4.f, 4.f}};
-                rect.setPosition({static_cast<float>(x * 4), static_cast<float>(win.getSize().y - z * 4)});
-                rect.setFillColor(CM->at(x).at(z));
-                map->draw(rect);
-            }
-        }
-        return map;
-    }
-}
+#include "es_frontend.hpp"
 
 int main() {
     // std::vector<CityLocation> cities = parseCSVFile("searched/2438515238773172647.-5000.0.csv");
@@ -82,10 +31,13 @@ int main() {
         return 1;
     }
 
-    ES::colorMap_t colorMap { ES::generate_ColorMap() }; 
-    std::shared_ptr<sf::RenderTexture> map { ES::generate_map(window, colorMap) };
+    MCVersion mc = MC_1_20;
+    uint64_t seed = 1;
+    int64_t startX = -1800, startZ = 4000;
+    es::colorMap_t colorMap { es::generate_ColorMap(mc, seed, startX, startZ) }; 
+    std::shared_ptr<sf::RenderTexture> map { es::generate_map(window, colorMap) };
     sf::Sprite mapSprite { map->getTexture() };
-    
+        
     sf::Clock deltaClock;
     while (window.isOpen()) 
     {
@@ -95,6 +47,9 @@ int main() {
             ImGui::SFML::ProcessEvent(window, event);
             if (event.type == sf::Event::Closed)
                 goto shutdown; // I am not scared a litte goto from time to time!
+            if (event.type == sf::Event::KeyPressed)
+                if (event.key.code == sf::Keyboard::Escape)
+                    goto shutdown;
         }
 
         window.clear();
@@ -126,10 +81,26 @@ int main() {
         }
 
         ImGui::SFML::Update(window, deltaClock.restart());
-        ImGui::ShowDemoWindow();
-        ImGui::Begin("Hello, world!");
-        ImGui::Button("Look at this pretty button");
+        
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
+        ImGui::Begin("User Input", nullptr, window_flags);
+            ImGui::PushItemWidth(100);
+                ImGui::InputScalar("Seed", ImGuiDataType_U64, &seed, nullptr, nullptr, "%lu");
+                ImGui::InputScalar("startX", ImGuiDataType_S64, &startX, nullptr, nullptr, "%ld");
+                ImGui::InputScalar("startZ", ImGuiDataType_S64, &startZ, nullptr, nullptr, "%ld");
+                static bool buttonPressed = false;
+                if (ImGui::IsItemActive() || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) buttonPressed = true;
+            ImGui::PopItemWidth();
+            if (ImGui::Button("Regenerate") || buttonPressed)
+            {
+                colorMap = es::generate_ColorMap(mc, seed, startX, startZ); 
+                map =  es::generate_map(window, colorMap);
+                mapSprite.setTexture(map->getTexture());
+                buttonPressed = false;
+            }
         ImGui::End();
+        
         ImGui::SFML::Render(window);
         
         window.display();

@@ -20,6 +20,7 @@ target_link_libraries(ESniper PRIVATE sfml-graphics sfml-window sfml-system sfml
 # ImGui
 set(IMGUI_SFML_FIND_SFML OFF)
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/imgui)
+# target_include_directories(ESniper PRIVATE ${IMGUI_DIR})
 
 # SFML-ImGui
 add_subdirectory(vendor/imgui-sfml)
