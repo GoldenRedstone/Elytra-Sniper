@@ -98,7 +98,7 @@ int main() {
     // Do expensive rendering once and save to a texture.
     es::colorMap_t colorMap { es::generate_ColorMap(mc, seed, startX, startZ, mapScale) }; 
     std::shared_ptr<sf::Texture> map { es::generate_map(window, colorMap) };
-    sf::Sprite mapSprite(*map, sf::IntRect(0, 0, 300, 300));
+    sf::Sprite mapSprite(*map, sf::IntRect(0, 0, 600, 600));
 
     // Load icons
     sf::Texture city_icon;
@@ -228,6 +228,7 @@ int main() {
 
               path.erase(path.begin());
             }
+
             mapSprite.setTexture(*map);
         }
 

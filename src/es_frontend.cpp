@@ -55,7 +55,6 @@ std::shared_ptr<sf::Texture> generate_map (const sf::Window& win, const colorMap
                   pixels[4 * ((z * 4 + j) * win.getSize().x + (x * 4 + i)) + 2] = CM->at(x).at(z).b;
                   pixels[4 * ((z * 4 + j) * win.getSize().x + (x * 4 + i)) + 3] = CM->at(x).at(z).a;
                 }
-
             }
             /*rect.setPosition({static_cast<float>(x * 4), static_cast<float>(win.getSize().y - z * 4)});*/
             /*rect.setFillColor(CM->at(x).at(z));*/
