@@ -27,6 +27,42 @@ int optimalScale(std::vector<CityLocation> cities, int64_t playerX, int64_t play
     return floor((maxDistance*1.1) / 75.f);
 }
 
+std::vector<CityLocation> GeneratePath (uint64_t visitCities, std::vector<CityLocation> cities, const int64_t& playerX, const int64_t& playerZ)
+{
+    std::vector<CityLocation> result;
+    std::vector<CityLocation> tmp = cities;
+    int64_t travellerX = playerX;
+    int64_t travellerZ = playerZ;
+
+    for (uint64_t i = 0; i < visitCities; i++)
+    {
+        CityLocation winner;
+        double winningDist = std::numeric_limits<double>::max();
+        uint64_t winningIndex = 0;
+        for (uint64_t j = 0; j < tmp.size();j++)
+        {
+            double dist = sqrtf64(powf64(tmp[j].x - travellerX, 2.0) + powf64(tmp[j].z - travellerZ, 2.0));
+            if (dist < winningDist)
+            {
+                winningDist = dist;
+                winner = tmp[j];
+                winningIndex = j;
+            }
+        }
+        tmp.erase(tmp.begin() + winningIndex);
+        travellerX = winner.x;
+        travellerZ = winner.z;
+        result.push_back(winner);
+    }
+    for (const auto& a : result)
+    {
+        std::cout << a.x << ", " << a.z << std::endl;
+    }
+    std::cout << result.size() << std::endl;
+
+    return result;
+}
+
 int main() {
     // Set up window properties
     sf::RenderWindow window(sf::VideoMode(600, 600), "Elytra Sniper");
@@ -48,8 +84,11 @@ int main() {
     findStructuresAround(seed, playerX, playerZ, mc);
     std::vector<CityLocation> cities { readCitiesAround(seed, playerX, playerZ) };
 
-    mapScale = optimalScale(cities, playerX, playerZ);
-    
+    // Calculate Path
+    std::vector<CityLocation> path { GeneratePath(10, cities, playerX, playerZ) };
+
+    // More map set up
+    mapScale = optimalScale(path, playerX, playerZ);
     int64_t startX = playerX - (75 * mapScale);
     int64_t startZ = playerZ - (75 * mapScale);
 
@@ -66,35 +105,6 @@ int main() {
     sf::Texture player_icon;
     player_icon.loadFromFile(PROJECT_DIR("assets/player.png"));
 
-    // Calculate Path
-    uint64_t visitCities = 10;
-    std::vector<CityLocation> tmp = cities;
-    std::vector<CityLocation> path;
-    int64_t travellerX = playerX, travellerZ = playerZ;
-    for (uint64_t i = 0; i < 10; i++)
-    {
-        CityLocation winner;
-        double winningDist = std::numeric_limits<double>::max();
-        for (uint64_t j = 0; j < tmp.size();j++)
-        {
-            double dist = sqrtf64(powf64(tmp[j].x - travellerX, 2.0) + powf64(tmp[j].z - travellerZ, 2.0));
-            if (dist < winningDist)
-            {
-                winningDist = dist;
-                winner = tmp[j];
-                tmp.erase(tmp.begin() + j);
-                j--;
-            }
-        }
-        playerX = winner.x;
-        playerZ = winner.z;
-        path.push_back(winner);
-    }
-    for (const auto& a : path)
-    {
-        std::cout << a.x << ", " << a.z << std::endl;
-    }
-    std::cout << path.size() << std::endl;
     
     // Start loop
     es::ImGuiTheme();
@@ -201,6 +211,7 @@ int main() {
                 playerX = path.at(0).x;
                 playerZ = path.at(0).z;
                 path.at(0).looted = true;
+                path.erase(path.begin());
 
                 std::cout << "Marking looted\n";
                 markCityLooted(seed, path.at(0).x, path.at(0).z);
@@ -208,7 +219,7 @@ int main() {
                 startX = playerX - (75 * mapScale);
                 startZ = playerZ - (75 * mapScale);
 
-                path = filterCities(path, false, true);
+                cities = filterCities(cities, false, true);
 
                 std::cout << "size: " << path.size() << "\n";
 
