@@ -15,3 +15,18 @@ Using our highly performant path search algorthm, ElytraSniper will show you the
 The first time you run ESniper, it will "install" some "dependencies". The next time you run ESniper, the app will be fully functional.
 
 ## Usage
+### Basic Screen
+<p align="center">
+  <img src="./assets/one.png" style="width: 33%; height: auto;" />
+</p>
+
+### Openning User Options
+<p align="center">
+  <img src="./assets/two.png" style="width: 33%; height: auto;" />
+</p>
+You can change the player's inital position (X,~,Z), the map's seed, and the number of End Cities the user intends to visit.
+
+### When you've configured your options, press regenerate!
+<p align="center">
+  <img src="./assets/three.png" style="width: 33%; height: auto;" />
+</p>
