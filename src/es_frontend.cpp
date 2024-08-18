@@ -1,5 +1,7 @@
 #include "es_frontend.hpp"
 #include "generator.h"
+#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <imgui.h>
 
 namespace es 
@@ -30,22 +32,40 @@ colorMap_t generate_ColorMap (const MCVersion& mc, uint64_t& seed, const int64_t
     return CM;
 }
 
-std::shared_ptr<sf::RenderTexture> generate_map (const sf::Window& win, const colorMap_t& CM)
+/*std::shared_ptr<sf::RenderTexture> generate_map (const sf::Window& win, const colorMap_t& CM)*/
+std::shared_ptr<sf::Texture> generate_map (const sf::Window& win, const colorMap_t& CM)
 {
-    std::shared_ptr<sf::RenderTexture> map { std::make_shared<sf::RenderTexture>() };
-    map->create(win.getSize().x, win.getSize().y);
-    map->clear();
+    /*std::shared_ptr<sf::RenderTexture> map { std::make_shared<sf::RenderTexture>() };*/
+    /*map->create(win.getSize().x, win.getSize().y);*/
+    /*map->clear();*/
+
+    sf::Uint8* pixels = new sf::Uint8[win.getSize().x * win.getSize().y * 4];
+    sf::Image image;
+
+
     for (uint64_t x = 0; x < CM->size(); x++)
     {
         for (uint64_t z = 0; z < CM->at(x).size(); z++) 
         {
-            sf::RectangleShape rect {{4.f, 4.f}};
-            rect.setPosition({static_cast<float>(x * 4), static_cast<float>(win.getSize().y - z * 4)});
-            rect.setFillColor(CM->at(x).at(z));
-            map->draw(rect);
+            /*sf::RectangleShape rect {{4.f, 4.f}};*/
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                  pixels[4 * ((z * 4 + j) * win.getSize().x + (x * 4 + i)) + 0] = CM->at(x).at(z).r;
+                  pixels[4 * ((z * 4 + j) * win.getSize().x + (x * 4 + i)) + 1] = CM->at(x).at(z).g;
+                  pixels[4 * ((z * 4 + j) * win.getSize().x + (x * 4 + i)) + 2] = CM->at(x).at(z).b;
+                  pixels[4 * ((z * 4 + j) * win.getSize().x + (x * 4 + i)) + 3] = CM->at(x).at(z).a;
+                }
+
+            }
+            /*rect.setPosition({static_cast<float>(x * 4), static_cast<float>(win.getSize().y - z * 4)});*/
+            /*rect.setFillColor(CM->at(x).at(z));*/
+            /*map->draw(rect);*/
         }
     }
-    return map;
+    image.create(win.getSize().x, win.getSize().y, pixels);
+    std::shared_ptr<sf::Texture> texture { std::make_shared<sf::Texture>() };
+    texture->loadFromImage(image);
+    return texture;
 }
 
 void ImGuiTheme() {

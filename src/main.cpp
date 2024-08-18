@@ -3,6 +3,9 @@
 #include "imgui-SFML.h"
 #include "generator.h"
 #include "finders.h"
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <memory>
 #include <iostream>
 #include <fstream>
@@ -94,8 +97,8 @@ int main() {
 
     // Do expensive rendering once and save to a texture.
     es::colorMap_t colorMap { es::generate_ColorMap(mc, seed, startX, startZ, mapScale) }; 
-    std::shared_ptr<sf::RenderTexture> map { es::generate_map(window, colorMap) };
-    sf::Sprite mapSprite { map->getTexture() };
+    std::shared_ptr<sf::Texture> map { es::generate_map(window, colorMap) };
+    sf::Sprite mapSprite(*map, sf::IntRect(0, 0, 300, 300));
 
     // Load icons
     sf::Texture city_icon;
@@ -176,58 +179,57 @@ int main() {
         ImGui::GetStyle().Colors[ImGuiCol_Text] = ImVec4(1.f, 1.f, 1.f, 1.f);
         ImGui::Begin("User Input", nullptr, window_flags);
         ImGui::GetStyle().Colors[ImGuiCol_Text] = popedCol;
-            ImGui::PushItemWidth(150);
-                ImGui::InputScalar("Seed", ImGuiDataType_U64, &seed, nullptr, nullptr, "%lu");
-                ImGui::InputScalar("X", ImGuiDataType_S64, &px, nullptr, nullptr, "%ld");
-                ImGui::InputScalar("Z", ImGuiDataType_S64, &pz, nullptr, nullptr, "%ld");
-                static bool buttonPressed = false;
-                if (ImGui::IsItemActive() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) buttonPressed = true;
-            ImGui::PopItemWidth();
-            // When the regenerate function is clicked, update the values.
-            if (ImGui::Button("Regenerate") || buttonPressed)
-            {
-                playerX = px;
-                playerZ = pz;
-                // Find and load the structures around the player.
-                findStructuresAround(seed, playerX, playerZ, mc);
-                cities = readCitiesAround(seed, playerX, playerZ);
-                cities = filterCities(cities, false, true);
+        ImGui::PushItemWidth(150);
+        ImGui::InputScalar("Seed", ImGuiDataType_U64, &seed, nullptr, nullptr, "%lu");
+        ImGui::InputScalar("X", ImGuiDataType_S64, &px, nullptr, nullptr, "%ld");
+        ImGui::InputScalar("Z", ImGuiDataType_S64, &pz, nullptr, nullptr, "%ld");
+        static bool buttonPressed = false;
+        if (ImGui::IsItemActive() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) buttonPressed = true;
+        ImGui::PopItemWidth();
+        // When the regenerate function is clicked, update the values.
+        if (ImGui::Button("Regenerate") || buttonPressed)
+        {
+            playerX = px;
+            playerZ = pz;
+            // Find and load the structures around the player.
+            findStructuresAround(seed, playerX, playerZ, mc);
+            cities = readCitiesAround(seed, playerX, playerZ);
+            cities = filterCities(cities, false, true);
 
-                mapScale = optimalScale(path, playerX, playerZ);
+            mapScale = optimalScale(path, playerX, playerZ);
 
-                startX = playerX - (75 * mapScale);
-                startZ = playerZ - (75 * mapScale);
+            startX = playerX - (75 * mapScale);
+            startZ = playerZ - (75 * mapScale);
 
-                // Do the expensive calculations again
-                colorMap = es::generate_ColorMap(mc, seed, startX, startZ, mapScale);
-                map =  es::generate_map(window, colorMap);
-                mapSprite.setTexture(map->getTexture());
+            // Do the expensive calculations again
+            colorMap = es::generate_ColorMap(mc, seed, startX, startZ, mapScale);
+            map =  es::generate_map(window, colorMap);
+            mapSprite.setTexture(*map);
 
-                buttonPressed = false;
+            buttonPressed = false;
+        }
+        if (ImGui::Button("Move to Next"))
+        {
+            // Move to next point.
+            if (path.size() > 1) {
+              playerX = path.at(0).x;
+              playerZ = path.at(0).z;
+              path.at(0).looted = true;
+
+              std::cout << "Marking looted\n";
+              markCityLooted(seed, path.at(0).x, path.at(0).z);
+
+              startX = playerX - (75 * mapScale);
+              startZ = playerZ - (75 * mapScale);
+
+              cities = filterCities(cities, false, true);
+
+              std::cout << "size: " << path.size() << "\n";
+
+              path.erase(path.begin());
             }
-            if (ImGui::Button("Move to Next"))
-            {
-                // Move to next point.
-                playerX = path.at(0).x;
-                playerZ = path.at(0).z;
-                path.at(0).looted = true;
-                path.erase(path.begin());
-
-                std::cout << "Marking looted\n";
-                markCityLooted(seed, path.at(0).x, path.at(0).z);
-
-                startX = playerX - (75 * mapScale);
-                startZ = playerZ - (75 * mapScale);
-
-                cities = filterCities(cities, false, true);
-
-                std::cout << "size: " << path.size() << "\n";
-
-                // Do the expensive calculations again
-                colorMap = es::generate_ColorMap(mc, seed, startX, startZ, mapScale);
-                map =  es::generate_map(window, colorMap);
-                mapSprite.setTexture(map->getTexture());
-            }
+            mapSprite.setTexture(*map);
+        }
 
         ImGui::End();
         ImGui::SFML::Render(window);
