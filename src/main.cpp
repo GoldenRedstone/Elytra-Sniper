@@ -152,7 +152,7 @@ int main() {
                 // Find and load the structures around the player.
                 findStructuresAround(seed, playerX, playerZ, mc);
                 cities = readCitiesAround(seed, playerX, playerZ);
-                // cities = filterCities(cities, true, false);
+                cities = filterCities(cities, false, true);
 
                 mapScale = optimalScale(cities, playerX, playerZ);
 
