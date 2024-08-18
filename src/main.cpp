@@ -110,13 +110,6 @@ int main() {
         int mx = (playerX - startX) / mapScale*4 - iconScale/2;
         int mz = (playerZ - startZ) / mapScale*4 - iconScale/2;
 
-        // Draw the player dot
-        sf::Sprite sprite;
-        sprite.setTexture(player_icon);
-        sprite.setScale(3, 3);
-        sprite.setPosition(mx, mz);
-        window.draw(sprite);
-
         // Draw each city
         for (const CityLocation& city : cities) {
             int mx = (city.x - startX) / mapScale*4 - iconScale/2;
@@ -128,6 +121,13 @@ int main() {
             sprite.setPosition(mx, mz);
             window.draw(sprite);
         }
+
+        // Draw the player dot
+        sf::Sprite sprite;
+        sprite.setTexture(player_icon);
+        sprite.setScale(3, 3);
+        sprite.setPosition(mx, mz);
+        window.draw(sprite);
 
         // Draw the GUI
         ImGui::SFML::Update(window, deltaClock.restart());
