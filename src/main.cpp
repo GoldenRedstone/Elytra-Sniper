@@ -198,19 +198,19 @@ int main() {
             if (ImGui::Button("Move to Next"))
             {
                 // Move to next point.
-                playerX = cities.at(0).x;
-                playerZ = cities.at(0).z;
-                cities.at(0).looted = true;
+                playerX = path.at(0).x;
+                playerZ = path.at(0).z;
+                path.at(0).looted = true;
 
                 std::cout << "Marking looted\n";
-                markCityLooted(seed, cities.at(0).x, cities.at(0).z);
+                markCityLooted(seed, path.at(0).x, path.at(0).z);
 
                 startX = playerX - (75 * mapScale);
                 startZ = playerZ - (75 * mapScale);
 
-                cities = filterCities(cities, false, true);
+                path = filterCities(path, false, true);
 
-                std::cout << "size: " << cities.size() << "\n";
+                std::cout << "size: " << path.size() << "\n";
 
                 // Do the expensive calculations again
                 colorMap = es::generate_ColorMap(mc, seed, startX, startZ, mapScale);
