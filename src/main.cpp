@@ -29,18 +29,6 @@ int optimalScale(std::vector<CityLocation> cities, int64_t playerX, int64_t play
 }
 
 int main() {
-
-    // Create temporary cities
-    std::vector<CityLocation> cities = {
-        { -1208, 4248, 0, 0 },  // 0
-        { 376, 5176, 0, 0 },    // 1
-        { 408, 4520, 0, 0 },    // 2
-        { 56, 4856, 1, 0 },     // 3
-        { 40, 4216, 1, 0 },     // 4
-        { -616, 4248, 1, 0 },   // 5
-        { -1224, 4840, 0, 0 }   // 6
-    };
-
     // Set up window properties
     sf::RenderWindow window(sf::VideoMode(600, 600), "Elytra Sniper");
     window.setPosition({600, 20});
@@ -59,7 +47,7 @@ int main() {
 
     // Find and load the structures around the player.
     findStructuresAround(seed, playerX, playerZ, mc);
-    cities = readCitiesAround(seed, playerX, playerZ);
+    std::vector<CityLocation> cities { readCitiesAround(seed, playerX, playerZ) };
 
     mapScale = optimalScale(cities, playerX, playerZ);
     
