@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <array>
+#include <cmath>
 #include "endcityfinder.hpp"
 #include "cityparser.hpp"
 #include "es_frontend.hpp"
@@ -25,7 +26,7 @@ int optimalScale(std::vector<CityLocation> cities, int64_t playerX, int64_t play
         }
     }
     std::cout << maxDistance << "\n";
-    return maxDistance / 75;
+    return floor((maxDistance*1.1) / 75.f);
 }
 
 int main() {
