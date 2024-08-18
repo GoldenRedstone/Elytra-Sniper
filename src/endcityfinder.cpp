@@ -103,7 +103,13 @@ void findStructuresAround(uint64_t seed, int x, int z, int mc) {
     int r = 5000;
 
     int rx = x/r;
+    if (x < 0) {
+        rx--;
+    }
     int rz = z/r;
+    if (z < 0) {
+        rz--;
+    }
 
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {

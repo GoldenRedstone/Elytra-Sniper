@@ -5,7 +5,7 @@
 #include <vector>
 #include <stdint.h>
 
-#define PROJECT_DIR(x) std::string(PROJECT_SOURCE_DIR) + x
+#define PROJECT_DIR(x) (std::string(PROJECT_SOURCE_DIR) + x)
 
 class CityLocation {
 public:
@@ -30,5 +30,9 @@ std::vector<CityLocation> filterCities(std::vector<CityLocation> cities, bool mu
  * Filters cities on either the existance of a ship, not yet visited, or both.
  */
 
+void markCityLooted(uint64_t seed, int64_t x, int64_t z);
+/*
+ * Marks a single city at the provided coordinates as looted.
+ */
 
 #endif /* CITYPARSER_H */

@@ -24,7 +24,7 @@ int optimalScale(std::vector<CityLocation> cities, int64_t playerX, int64_t play
         }
     }
     std::cout << maxDistance << "\n";
-    return maxDistance / 75;
+    return floor((maxDistance*1.1) / 75.f);
 }
 
 int main() {
@@ -139,13 +139,6 @@ int main() {
         int mx = (playerX - startX) / mapScale*4 - iconScale/2;
         int mz = (playerZ - startZ) / mapScale*4 - iconScale/2;
 
-        // Draw the player dot
-        sf::Sprite sprite;
-        sprite.setTexture(player_icon);
-        sprite.setScale(3, 3);
-        sprite.setPosition(mx, mz);
-        window.draw(sprite);
-
         // Draw each city
         for (const CityLocation& city : cities) {
             int mx = (city.x - startX) / mapScale*4 - iconScale/2;
@@ -157,6 +150,13 @@ int main() {
             sprite.setPosition(mx, mz);
             window.draw(sprite);
         }
+
+        // Draw the player dot
+        sf::Sprite sprite;
+        sprite.setTexture(player_icon);
+        sprite.setScale(3, 3);
+        sprite.setPosition(mx, mz);
+        window.draw(sprite);
 
         // Draw the GUI
         ImGui::SFML::Update(window, deltaClock.restart());
@@ -181,7 +181,7 @@ int main() {
                 // Find and load the structures around the player.
                 findStructuresAround(seed, playerX, playerZ, mc);
                 cities = readCitiesAround(seed, playerX, playerZ);
-                // cities = filterCities(cities, true, false);
+                cities = filterCities(cities, false, true);
 
                 mapScale = optimalScale(path, playerX, playerZ);
 
@@ -194,6 +194,28 @@ int main() {
                 mapSprite.setTexture(map->getTexture());
 
                 buttonPressed = false;
+            }
+            if (ImGui::Button("Move to Next"))
+            {
+                // Move to next point.
+                playerX = cities.at(0).x;
+                playerZ = cities.at(0).z;
+                cities.at(0).looted = true;
+
+                std::cout << "Marking looted\n";
+                markCityLooted(seed, cities.at(0).x, cities.at(0).z);
+
+                startX = playerX - (75 * mapScale);
+                startZ = playerZ - (75 * mapScale);
+
+                cities = filterCities(cities, false, true);
+
+                std::cout << "size: " << cities.size() << "\n";
+
+                // Do the expensive calculations again
+                colorMap = es::generate_ColorMap(mc, seed, startX, startZ, mapScale);
+                map =  es::generate_map(window, colorMap);
+                mapSprite.setTexture(map->getTexture());
             }
 
         ImGui::End();
