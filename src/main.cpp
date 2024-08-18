@@ -57,11 +57,17 @@ std::vector<CityLocation> GeneratePath (uint64_t visitCities, std::vector<CityLo
         result.push_back(winner);
     }
     std::cout << "Path found: \n";
+    FILE *fpt;
+    fpt = fopen(PROJECT_DIR("waypoints.txt").c_str(), "w+");
+    int n = 1;
     for (const auto& a : result)
-    {
+    {   
         std::cout << a.x << ", " << a.z << "; ";
+        fprintf(fpt, "waypoint:%d:%d:%d:~:%d:%d:false:0:End_Cities:false:0:0:false\n", n, n, a.x, a.z, n % 16);
+        n++;
     }
     std::cout << "length: " << result.size() << std::endl;
+    fclose(fpt);
 
     return result;
 }
@@ -149,7 +155,7 @@ int main() {
         );
 
         // Some variables control drawing
-        int iconScale = 10;
+        int iconScale = 16;
         int mx = (playerX - startX) / mapScale*4 - iconScale/2;
         int mz = (playerZ - startZ) / mapScale*4 - iconScale/2;
 
@@ -214,26 +220,29 @@ int main() {
             }
             if (ImGui::Button("Move to Next"))
             {
-                // Move to next point.
-                playerX = path.at(0).x;
-                playerZ = path.at(0).z;
-                px = playerX;
-                pz = playerZ;
-                path.at(0).looted = true;
-                path.erase(path.begin());
+                if (path.size() > 1) {
+                    // Move to next point.
+                    playerX = path.at(0).x;
+                    playerZ = path.at(0).z;
+                    px = playerX;
+                    pz = playerZ;
+                    path.at(0).looted = true;
+                    markCityLooted(seed, path.at(0).x, path.at(0).z);
 
-                std::cout << "Marked as looted\n";
-                markCityLooted(seed, path.at(0).x, path.at(0).z);
+                    std::cout << "Marked as looted\n";
 
-                mapScale = optimalScale(path, playerX, playerZ);
+                    path.erase(path.begin());
 
-                startX = playerX - (75 * mapScale);
-                startZ = playerZ - (75 * mapScale);
+                    mapScale = optimalScale(path, playerX, playerZ);
 
-                // Do the expensive calculations again
-                colorMap = es::generate_ColorMap(mc, seed, startX, startZ, mapScale);
-                map =  es::generate_map(window, colorMap);
-                mapSprite.setTexture(map->getTexture());
+                    startX = playerX - (75 * mapScale);
+                    startZ = playerZ - (75 * mapScale);
+
+                    // Do the expensive calculations again
+                    colorMap = es::generate_ColorMap(mc, seed, startX, startZ, mapScale);
+                    map =  es::generate_map(window, colorMap);
+                    mapSprite.setTexture(map->getTexture());
+                }
             }
 
         ImGui::End();
