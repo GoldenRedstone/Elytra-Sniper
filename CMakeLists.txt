@@ -29,3 +29,4 @@ target_link_libraries(ESniper
     ImGui-SFML::ImGui-SFML
 )
 
+file(MAKE_DIRECTORY searched)
