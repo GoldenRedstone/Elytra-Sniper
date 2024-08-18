@@ -38,7 +38,7 @@ std::vector<CityLocation> parseCSVFile(std::string filename) {
 
         cities.push_back(newCity);
     }
-
+    input.close();
     return cities;
 }
 
@@ -71,10 +71,40 @@ std::vector<CityLocation> filterCities(std::vector<CityLocation> cities, bool mu
         if (!city.hasShip && mustHaveShip) {
             continue;
         }
-        if (!city.looted && mustBeUnexplored) {
+        if (city.looted && mustBeUnexplored) {
             continue;
         }
         filteredCities.push_back(city);
     }
     return filteredCities;
+}
+
+
+void markCityLooted(uint64_t seed, int64_t x, int64_t z) {
+    std::ostringstream filename;
+    std::vector<CityLocation> cities;
+    
+    int r = 5000;
+    int rx = x/r;
+    int rz = z/r;
+
+    filename << "searched/" << seed << "." << r*(rx) << "." << r*(rz) << ".csv";
+    std::cout << "Loading chunk - " << filename.str() << "\n";
+    cities = parseCSVFile(filename.str());
+
+    FILE *fpt;
+    fpt = fopen(PROJECT_DIR(filename.str()).c_str(), "w+");
+    fprintf(fpt, "x,z,ship,looted\n");
+
+    std::cout << "X: " << x << ", Z: " << z << "\n";
+    for (CityLocation& city : cities) {
+        std::cout << "cx: " << city.x << ", z: " << city.z << "\n";
+        if ((city.x == x && city.z == z) || city.looted) {
+            std::cout << "Set?\n";
+            fprintf(fpt, "%d,%d,%d,1\n", city.x, city.z, city.hasShip);
+        } else {
+            fprintf(fpt, "%d,%d,%d,0\n", city.x, city.z, city.hasShip);
+        }
+    }
+    fclose(fpt);
 }

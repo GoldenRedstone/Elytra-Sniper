@@ -166,6 +166,28 @@ int main() {
 
                 buttonPressed = false;
             }
+            if (ImGui::Button("Move to Next"))
+            {
+                // Move to next point.
+                playerX = cities.at(0).x;
+                playerZ = cities.at(0).z;
+                cities.at(0).looted = true;
+
+                std::cout << "Marking looted\n";
+                markCityLooted(seed, cities.at(0).x, cities.at(0).z);
+
+                startX = playerX - (75 * mapScale);
+                startZ = playerZ - (75 * mapScale);
+
+                cities = filterCities(cities, false, true);
+
+                std::cout << "size: " << cities.size() << "\n";
+
+                // Do the expensive calculations again
+                colorMap = es::generate_ColorMap(mc, seed, startX, startZ, mapScale);
+                map =  es::generate_map(window, colorMap);
+                mapSprite.setTexture(map->getTexture());
+            }
 
         ImGui::End();
         ImGui::SFML::Render(window);
