@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <array>
+#include <limits>
 #include "endcityfinder.hpp"
 #include "cityparser.hpp"
 #include "es_frontend.hpp"
@@ -17,11 +18,9 @@ int optimalScale(std::vector<CityLocation> cities, int64_t playerX, int64_t play
     for (CityLocation city : cities) {
         if (abs(static_cast<int64_t>(city.x - playerX)) > maxDistance) {
             maxDistance = abs(static_cast<int64_t>(city.x - playerX));
-            std::cout << maxDistance << "\n";
         }
         if (abs(static_cast<int64_t>(city.z - playerZ)) > maxDistance) {
             maxDistance = abs(static_cast<int64_t>(city.z - playerZ));
-            std::cout << maxDistance << "\n";
         }
     }
     std::cout << maxDistance << "\n";
@@ -66,6 +65,36 @@ int main() {
     ship_icon.loadFromFile(PROJECT_DIR("assets/ship.png"));
     sf::Texture player_icon;
     player_icon.loadFromFile(PROJECT_DIR("assets/player.png"));
+
+    // Calculate Path
+    uint64_t visitCities = 10;
+    std::vector<CityLocation> tmp = cities;
+    std::vector<CityLocation> path;
+    int64_t travellerX = playerX, travellerZ = playerZ;
+    for (uint64_t i = 0; i < 10; i++)
+    {
+        CityLocation winner;
+        double winningDist = std::numeric_limits<double>::max();
+        for (uint64_t j = 0; j < tmp.size();j++)
+        {
+            double dist = sqrtf64(powf64(tmp[j].x - travellerX, 2.0) + powf64(tmp[j].z - travellerZ, 2.0));
+            if (dist < winningDist)
+            {
+                winningDist = dist;
+                winner = tmp[j];
+                tmp.erase(tmp.begin() + j);
+                j--;
+            }
+        }
+        playerX = winner.x;
+        playerZ = winner.z;
+        path.push_back(winner);
+    }
+    for (const auto& a : path)
+    {
+        std::cout << a.x << ", " << a.z << std::endl;
+    }
+    std::cout << path.size() << std::endl;
     
     // Start loop
     es::ImGuiTheme();
@@ -91,18 +120,18 @@ int main() {
         window.draw(mapSprite);     // Draw the saved map texture
 
         // Draw lines connecting the cities
-        for (int i = 0; i < cities.size()-1; i++) {
+        for (int i = 0; i < path.size() - 1; i++) {
             es::drawPath(
                 window,
-                { static_cast<float>(cities.at(i  ).x - startX) / mapScale*4.f, static_cast<float>(cities.at(i  ).z - startZ) / mapScale*4.f },
-                { static_cast<float>(cities.at(i+1).x - startX) / mapScale*4.f, static_cast<float>(cities.at(i+1).z - startZ) / mapScale*4.f }
+                { static_cast<float>(path.at(i  ).x - startX) / mapScale*4.f, static_cast<float>(path.at(i  ).z - startZ) / mapScale*4.f },
+                { static_cast<float>(path.at(i+1).x - startX) / mapScale*4.f, static_cast<float>(path.at(i+1).z - startZ) / mapScale*4.f }
             );
         }
         // Draw one more line to the player
         es::drawPath(
             window,
             { static_cast<float>(playerX - startX) / mapScale*4.f, static_cast<float>(playerZ - startZ) / mapScale*4.f },
-            { static_cast<float>(cities.at(0).x - startX) / mapScale*4.f, static_cast<float>(cities.at(0).z - startZ) / mapScale*4.f }
+            { static_cast<float>(path.at(0).x - startX) / mapScale*4.f, static_cast<float>(path.at(0).z - startZ) / mapScale*4.f }
         );
 
         // Some variables control drawing
@@ -154,7 +183,7 @@ int main() {
                 cities = readCitiesAround(seed, playerX, playerZ);
                 // cities = filterCities(cities, true, false);
 
-                mapScale = optimalScale(cities, playerX, playerZ);
+                mapScale = optimalScale(path, playerX, playerZ);
 
                 startX = playerX - (75 * mapScale);
                 startZ = playerZ - (75 * mapScale);
