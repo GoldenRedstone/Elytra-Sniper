@@ -23,7 +23,6 @@ int optimalScale(std::vector<CityLocation> cities, int64_t playerX, int64_t play
             maxDistance = abs(static_cast<int64_t>(city.z - playerZ));
         }
     }
-    std::cout << maxDistance << "\n";
     return floor((maxDistance*1.1) / 75.f);
 }
 
@@ -39,6 +38,9 @@ std::vector<CityLocation> GeneratePath (uint64_t visitCities, std::vector<CityLo
         CityLocation winner;
         double winningDist = std::numeric_limits<double>::max();
         uint64_t winningIndex = 0;
+        if (tmp.size() == 0) {
+            break;
+        }
         for (uint64_t j = 0; j < tmp.size();j++)
         {
             double dist = sqrtf64(powf64(tmp[j].x - travellerX, 2.0) + powf64(tmp[j].z - travellerZ, 2.0));
@@ -54,11 +56,12 @@ std::vector<CityLocation> GeneratePath (uint64_t visitCities, std::vector<CityLo
         travellerZ = winner.z;
         result.push_back(winner);
     }
+    std::cout << "Path found: \n";
     for (const auto& a : result)
     {
-        std::cout << a.x << ", " << a.z << std::endl;
+        std::cout << a.x << ", " << a.z << "; ";
     }
-    std::cout << result.size() << std::endl;
+    std::cout << "length: " << result.size() << std::endl;
 
     return result;
 }
@@ -75,6 +78,7 @@ int main() {
 
     // Default variables. Most of these can be changed in the program.
     int mapScale = 8;
+    int routeLength = 10;
     MCVersion mc = MC_1_20;
     uint64_t seed = 2438515238773172647;
     int64_t playerX = 2500, playerZ = 2500;
@@ -85,7 +89,7 @@ int main() {
     std::vector<CityLocation> cities { readCitiesAround(seed, playerX, playerZ) };
 
     // Calculate Path
-    std::vector<CityLocation> path { GeneratePath(10, cities, playerX, playerZ) };
+    std::vector<CityLocation> path { GeneratePath(routeLength, cities, playerX, playerZ) };
 
     // More map set up
     mapScale = optimalScale(path, playerX, playerZ);
@@ -180,6 +184,7 @@ int main() {
                 ImGui::InputScalar("Seed", ImGuiDataType_U64, &seed, nullptr, nullptr, "%lu");
                 ImGui::InputScalar("X", ImGuiDataType_S64, &px, nullptr, nullptr, "%ld");
                 ImGui::InputScalar("Z", ImGuiDataType_S64, &pz, nullptr, nullptr, "%ld");
+                ImGui::InputScalar("Length", ImGuiDataType_U32, &routeLength, nullptr, nullptr, "%d");
                 static bool buttonPressed = false;
                 if (ImGui::IsItemActive() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) buttonPressed = true;
             ImGui::PopItemWidth();
@@ -192,6 +197,8 @@ int main() {
                 findStructuresAround(seed, playerX, playerZ, mc);
                 cities = readCitiesAround(seed, playerX, playerZ);
                 cities = filterCities(cities, false, true);
+
+                path = GeneratePath(routeLength, cities, playerX, playerZ);
 
                 mapScale = optimalScale(path, playerX, playerZ);
 
@@ -210,18 +217,18 @@ int main() {
                 // Move to next point.
                 playerX = path.at(0).x;
                 playerZ = path.at(0).z;
+                px = playerX;
+                pz = playerZ;
                 path.at(0).looted = true;
                 path.erase(path.begin());
 
-                std::cout << "Marking looted\n";
+                std::cout << "Marked as looted\n";
                 markCityLooted(seed, path.at(0).x, path.at(0).z);
+
+                mapScale = optimalScale(path, playerX, playerZ);
 
                 startX = playerX - (75 * mapScale);
                 startZ = playerZ - (75 * mapScale);
-
-                cities = filterCities(cities, false, true);
-
-                std::cout << "size: " << path.size() << "\n";
 
                 // Do the expensive calculations again
                 colorMap = es::generate_ColorMap(mc, seed, startX, startZ, mapScale);
