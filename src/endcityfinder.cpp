@@ -67,16 +67,17 @@ void findStructures(int structureType, int mc, int dim, uint64_t seed,
                     continue;
             }
 
-            
-            Piece* plist = (Piece*)calloc(200, sizeof(Piece));
+            Piece* plist = (Piece*) calloc(END_CITY_PIECES_MAX, sizeof(Piece));
             {
                 Piece* lst = plist;
-                for (int i = 0; i < 200; i++){
-                    plist[i].next = &(plist[i+1]);
+                for (int i = 0; i < END_CITY_PIECES_MAX; i++) {
+                    plist[i].next = &(plist[i + 1]);
                 }
             }
 
-            int ret = getEndCityPieces(plist, seed, pos.x/16, pos.z/16);
+            int chunkX = pos.x / 16 - (pos.x < 0);
+            int chunkZ = pos.z / 16 - (pos.z < 0);
+            int ret = getEndCityPieces(plist, seed, chunkX, chunkZ);
 
             int hasShip = 0;
 
