@@ -108,11 +108,8 @@ void markCityLooted(uint64_t seed, int64_t x, int64_t z) {
     fpt = fopen(PROJECT_DIR(filename.str()).c_str(), "w+");
     fprintf(fpt, "x,z,ship,looted\n");
 
-    std::cout << "X: " << x << ", Z: " << z << "\n";
     for (CityLocation& city : cities) {
-        std::cout << "cx: " << city.x << ", z: " << city.z << "\n";
         if ((city.x == x && city.z == z) || city.looted) {
-            std::cout << "Set?\n";
             fprintf(fpt, "%d,%d,%d,1\n", city.x, city.z, city.hasShip);
         } else {
             fprintf(fpt, "%d,%d,%d,0\n", city.x, city.z, city.hasShip);
