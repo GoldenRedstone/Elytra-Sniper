@@ -114,13 +114,13 @@ void drawPath (sf::RenderWindow& win, const sf::Vector2f& start, const sf::Vecto
         start,
         end,
         14.f,
-        { 89, 172, 255, 170 } 
+        color_r_border
     ));
     win.draw(es::createThickLine(
         start,
         end,
         8.f,
-        { 8, 0, 188, 255 }
+        color_route
     ));
 }
 

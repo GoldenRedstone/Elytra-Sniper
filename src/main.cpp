@@ -174,6 +174,9 @@ int main() {
 
             sf::Sprite sprite;
             sprite.setTexture((city.hasShip) ? ship_icon : city_icon);
+            if (city.looted) {
+                sprite.setColor(sf::Color(255, 255, 255, 128)); // half transparent
+            }
             sprite.setScale(3, 3);
             sprite.setPosition(mx, mz);
             window.draw(sprite);
