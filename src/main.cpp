@@ -22,16 +22,18 @@ int optimalScale(const std::vector<CityLocation>& cities, int64_t playerX, int64
     return static_cast<int>(std::floor((maxDistance * 1.1) / 75.f));
 }
 
-std::vector<CityLocation> GeneratePath(uint64_t visitCities, std::vector<CityLocation> cities, const int64_t& playerX, const int64_t& playerZ) {
+std::vector<CityLocation> GeneratePath(uint64_t visitCities, const std::vector<CityLocation>& cities, const int64_t& playerX, const int64_t& playerZ) {
     std::vector<CityLocation> result;
-    std::vector<CityLocation> tmp = filterCities(cities, true, true);
+    std::vector<CityLocation> tmp = filterCities(cities, false, false);
     int64_t travellerX = playerX;
     int64_t travellerZ = playerZ;
 
+    result.reserve(visitCities); // Reserve space to avoid reallocations
+
     for (uint64_t i = 0; i < visitCities && !tmp.empty(); ++i) {
         auto closestCity = std::min_element(tmp.begin(), tmp.end(), [&](const CityLocation& a, const CityLocation& b) {
-            double distA = sqrt(pow(a.x - travellerX, 2) + pow(a.z - travellerZ, 2));
-            double distB = sqrt(pow(b.x - travellerX, 2) + pow(b.z - travellerZ, 2));
+            double distA = (a.x-travellerX)*(a.x-travellerX) + (a.z-travellerZ)*(a.z-travellerZ);
+            double distB = (b.x-travellerX)*(b.x-travellerX) + (b.z-travellerZ)*(b.z-travellerZ);
             return distA < distB;
         });
 
@@ -59,11 +61,10 @@ std::vector<CityLocation> GeneratePath(uint64_t visitCities, std::vector<CityLoc
 }
 
 int main() {
-    // Set up window properties
     sf::RenderWindow window(sf::VideoMode(600, 600), "Elytra Sniper");
     window.setPosition( {600, 20} );
     window.setFramerateLimit(60);
-    bool res = ImGui::SFML::Init(window); // function is marked [[NODISCARD]]
+    bool res = ImGui::SFML::Init(window);
     if (!res) {
         return 1;
     }
@@ -76,7 +77,7 @@ int main() {
     int64_t playerX = 2500, playerZ = 2500;
     int64_t px = playerX, pz = playerZ;
 
-    // Find and load the structures around the player.
+    // Find and load the structures around the player
     findStructuresAround(seed, playerX, playerZ, mc);
     std::vector<CityLocation> cities { readCitiesAround(seed, playerX, playerZ) };
 
@@ -99,37 +100,28 @@ int main() {
         map -> getTexture()
     };
 
-    // Load icons
-    sf::Texture city_icon;
+    // Load icons only once
+    sf::Texture city_icon, ship_icon, player_icon;
     city_icon.loadFromFile(PROJECT_DIR("assets/city.png"));
-    sf::Texture ship_icon;
     ship_icon.loadFromFile(PROJECT_DIR("assets/ship.png"));
-    sf::Texture player_icon;
     player_icon.loadFromFile(PROJECT_DIR("assets/player.png"));
 
-    // Start loop
     es::ImGuiTheme();
     sf::Clock deltaClock;
-    while (window.isOpen()) {
 
-        // Shutdown when the window is closed or escape is pressed.
+    while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(window, event);
-            if (event.type == sf::Event::Closed)
-                goto shutdown; // I am not scared a litte goto from time to time!
-            else if (event.type == sf::Event::KeyPressed)
-                if (event.key.code == sf::Keyboard::Escape)
-                    goto shutdown;
+            if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape))
+                window.close();
         }
 
-        // Draw the screen
         window.clear();
-
         window.draw(mapSprite); // Draw the saved map texture
 
         // Draw lines connecting the cities
-        for (int i = 0; i < path.size() - 1; i++) {
+        for (size_t i = 0; i < path.size() - 1; i++) {
             es::drawPath(
                 window, {
                     static_cast<float>(path.at(i).x - startX) / mapScale * 4.f,
@@ -140,7 +132,8 @@ int main() {
                 }
             );
         }
-        // Draw one more line to the player
+
+        // Draw the player path
         es::drawPath(
             window, {
                 static_cast<float>(playerX - startX) / mapScale * 4.f,
@@ -153,26 +146,29 @@ int main() {
 
         // Some variables control drawing
         int iconScale = 16;
-        int mx = (playerX - startX) / mapScale * 4 - iconScale / 2;
-        int mz = (playerZ - startZ) / mapScale * 4 - iconScale / 2;
+        int mx, mz;
 
         // Draw each city
         for (const CityLocation &city: cities) {
-            int mx = (city.x - startX) / mapScale * 4 - iconScale / 2;
-            int mz = (city.z - startZ) / mapScale * 4 - iconScale / 2;
+            mx = (city.x - startX) / mapScale * 4 - iconScale / 2;
+            mz = (city.z - startZ) / mapScale * 4 - iconScale / 2;
 
             sf::Sprite sprite;
             sprite.setTexture((city.hasShip) ? ship_icon : city_icon);
             if (city.looted) {
-                sprite.setColor(sf::Color(255, 255, 255, 128)); // half transparent
+                sprite.setColor(sf::Color(255, 255, 255, 128));  // Half transparent
+            } else {
+                sprite.setColor(sf::Color::White);
             }
             sprite.setScale(3, 3);
             sprite.setPosition(mx, mz);
             window.draw(sprite);
         }
 
-        // Draw the player dot
+        // Draw the player icon
         sf::Sprite sprite;
+        mx = (playerX - startX) / mapScale * 4 - iconScale / 2;
+        mz = (playerZ - startZ) / mapScale * 4 - iconScale / 2;
         sprite.setTexture(player_icon);
         sprite.setScale(3, 3);
         sprite.setPosition(mx, mz);
@@ -244,13 +240,9 @@ int main() {
 
         ImGui::End();
         ImGui::SFML::Render(window);
-
         window.display();
     }
 
-    shutdown:
-        window.close();
     ImGui::SFML::Shutdown();
-
     return 0;
 }

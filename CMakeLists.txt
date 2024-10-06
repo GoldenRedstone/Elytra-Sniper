@@ -29,4 +29,11 @@ target_link_libraries(ESniper
     ImGui-SFML::ImGui-SFML
 )
 
+# OpenMP
+find_package(OpenMP REQUIRED)  # Add this line to find OpenMP
+
+if(OpenMP_CXX_FOUND)  # Check if OpenMP was found
+    target_link_libraries(ESniper PRIVATE OpenMP::OpenMP_CXX)  # Link OpenMP
+endif()
+
 file(MAKE_DIRECTORY searched)

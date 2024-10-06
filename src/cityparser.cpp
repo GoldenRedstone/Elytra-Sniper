@@ -6,10 +6,10 @@
 #include "cityparser.hpp"
 
 
-std::vector<CityLocation> parseCSVFile(std::string filename) {
+std::vector<CityLocation> parseCSVFile(const std::string filename) {
     std::string path = PROJECT_DIR(filename);
     std::ifstream inputFile(path);
-    
+
     if (!inputFile.is_open()) {
         std::cerr << "Couldn't read file: " << filename << "\n";
         return {};
@@ -17,30 +17,27 @@ std::vector<CityLocation> parseCSVFile(std::string filename) {
 
     std::vector<CityLocation> cities;
     std::string line;
-    std::vector<std::string> headerRow;
+
+    // Reserve space to avoid reallocations, assuming a maximum of 100 entries
+    cities.reserve(100);
 
     // Process each line in the CSV file
+    bool isHeader = true; // Flag to skip header row
     while (std::getline(inputFile, line)) {
-        std::istringstream lineStream(line);
-        std::vector<std::string> row;
-
-        std::string value;
-        while (std::getline(lineStream, value, ',')) {
-            row.push_back(value);
-        }
-
-        // Skip the header row
-        if (headerRow.empty()) {
-            headerRow = row;
+        if (isHeader) { // Skip header
+            isHeader = false;
             continue;
         }
 
-        // Populate CityLocation struct from the row
+        std::istringstream lineStream(line);
         CityLocation newCity;
-        newCity.x = std::stoi(row.at(0));
-        newCity.z = std::stoi(row.at(1));
-        newCity.hasShip = row.at(2) == "1";
-        newCity.looted = row.at(3) == "1";
+
+        // Use std::getline and push_back directly to newCity fields
+        std::string value;
+        if (std::getline(lineStream, value, ',')) newCity.x = std::stoi(value);
+        if (std::getline(lineStream, value, ',')) newCity.z = std::stoi(value);
+        if (std::getline(lineStream, value, ',')) newCity.hasShip = value == "1";
+        if (std::getline(lineStream, value, ',')) newCity.looted = value == "1";
 
         cities.push_back(newCity);
     }
@@ -59,18 +56,17 @@ std::vector<CityLocation> readCitiesAround(uint64_t seed, int x, int z) {
     int rz = (z / regionSize) - (z < 0);
 
     // Check adjacent regions (3x3 grid)
+    mommy.reserve(400); // Reserve space for 400 entries (9 regions)
+
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
+            filename.str(std::string()); // Reset filename
             filename << "searched/" << seed << "." << regionSize * (rx + i) 
                      << "." << regionSize * (rz + j) << ".csv";
 
             std::cout << "Loading chunk " << i << ", " << j << " - " << filename.str() << "\n";
             auto child = parseCSVFile(filename.str());
-
             mommy.insert(mommy.end(), child.begin(), child.end());
-
-            // Reset filename for the next chunk
-            filename.str(std::string());
         }
     }
 
@@ -78,17 +74,16 @@ std::vector<CityLocation> readCitiesAround(uint64_t seed, int x, int z) {
 }
 
 // Filter cities based on whether they have a ship and/or are unexplored
-std::vector<CityLocation> filterCities(std::vector<CityLocation> cities, 
+std::vector<CityLocation> filterCities(const std::vector<CityLocation> cities, 
                                        bool mustHaveShip = false, 
                                        bool mustBeUnexplored = false) {
     std::vector<CityLocation> filteredCities;
 
+    filteredCities.reserve(cities.size()); // Reserve space for filtering
+
     for (const CityLocation& city : cities) {
-        if (mustHaveShip && !city.hasShip) {
-            continue;
-        }
-        if (mustBeUnexplored && city.looted) {
-            continue;
+        if ((mustHaveShip && !city.hasShip) || (mustBeUnexplored && city.looted)) {
+            continue; // Skip if conditions are not met
         }
         filteredCities.push_back(city);
     }
@@ -97,6 +92,7 @@ std::vector<CityLocation> filterCities(std::vector<CityLocation> cities,
 }
 
 
+// Mark a city as looted by updating its status in the corresponding CSV file
 void markCityLooted(uint64_t seed, int64_t x, int64_t z) {
     std::ostringstream filename;
     const int regionSize = 5000;
@@ -106,11 +102,11 @@ void markCityLooted(uint64_t seed, int64_t x, int64_t z) {
 
     filename << "searched/" << seed << "." << regionSize * rx << "." 
              << regionSize * rz << ".csv";
-    
+
     std::cout << "Loading chunk - " << filename.str() << "\n";
-    
+
     auto cities = parseCSVFile(filename.str());
-    std::ofstream outputFile(PROJECT_DIR(filename.str()).c_str());
+    std::ofstream outputFile(PROJECT_DIR(filename.str()));
 
     if (!outputFile.is_open()) {
         std::cerr << "Couldn't write to file: " << filename.str() << "\n";
@@ -120,10 +116,9 @@ void markCityLooted(uint64_t seed, int64_t x, int64_t z) {
     outputFile << "x,z,ship,looted\n";
 
     // Update the looted status of the city
-    for (CityLocation& city : cities) {
-        bool isCurrentCity = (city.x == x && city.z == z);
+    for (const CityLocation& city : cities) {
         outputFile << city.x << ',' << city.z << ',' << city.hasShip << ',' 
-                   << (isCurrentCity || city.looted ? 1 : 0) << '\n';
+                   << ((city.x == x && city.z == z) || city.looted ? 1 : 0) << '\n';
     }
 
     outputFile.close();

@@ -63,17 +63,16 @@ void findStructures(int structureType, int mcVersion, int dimension, uint64_t se
     int rx1 = static_cast<int>(std::ceil(x1 / blocksPerRegion));
     int rz1 = static_cast<int>(std::ceil(z1 / blocksPerRegion));
 
+    Piece* pieceList = (Piece*) calloc(END_CITY_PIECES_MAX, sizeof(Piece));
+
     // Iterate over structure regions
     for (int j = rz0; j <= rz1; j++) {
         for (int i = rx0; i <= rx1; i++) {
+            memset(pieceList, 0, sizeof(Piece) * END_CITY_PIECES_MAX);
 
             // Get the structure position
             Pos pos;
             if (!getStructurePos(structureType, mcVersion, seed, i, j, &pos)) {
-                continue;
-            }
-            // Check if the structure is within the specified area
-            if (pos.x < x0 || pos.x > x1 || pos.z < z0 || pos.z > z1) {
                 continue;
             }
             // Verify biome viability for the structure
@@ -89,7 +88,6 @@ void findStructures(int structureType, int mcVersion, int dimension, uint64_t se
             }
 
             // Get End City pieces (specific to End City structures)
-            Piece* pieceList = (Piece*) calloc(END_CITY_PIECES_MAX, sizeof(Piece));
             if (!pieceList) {
                 std::cerr << "Memory allocation failed\n";
                 fclose(file);
@@ -118,13 +116,15 @@ void findStructures(int structureType, int mcVersion, int dimension, uint64_t se
             std::cout << "x: " << pos.x << ", z: " << pos.z << ", ship: " << hasShip << "\n";
             fprintf(file, "%d,%d,%d,0\n", pos.x, pos.z, hasShip);
 
-            // Free allocated memory
-            free(pieceList);
+            
         }
     }
 
     // Close file after writing
     fclose(file);
+
+    // Free allocated memory
+    free(pieceList);
 }
 
 // Function to find structures around a given seed and coordinates
