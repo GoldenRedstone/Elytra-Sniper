@@ -1,110 +1,144 @@
 #include "finders.h"
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
-#include <unistd.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <unistd.h>
 
+// Define a helper macro to generate file paths
 #define PROJECT_DIR(x) (std::string(PROJECT_SOURCE_DIR) + x)
 
-void findStructures(int structureType, int mc, int dim, uint64_t seed,
-    int x0, int z0, int x1, int z1) {
-
+// Function to find structures within a specific coordinate range
+void findStructures(int structureType, int mcVersion, int dimension, uint64_t seed, 
+                    int x0, int z0, int x1, int z1) {
+    
+    // Construct the output filename
     std::ostringstream filename;
     filename << "searched/" << seed << "." << x0 << "." << z0 << ".csv";
-    std::cout << filename.str();
-
-    if (access(PROJECT_DIR(filename.str()).c_str(), F_OK) == 0) {
-        std::cout << " - File already exists\n";
+    std::string fullPath = PROJECT_DIR(filename.str());
+    
+    // Check if the file already exists
+    if (access(fullPath.c_str(), F_OK) == 0) {
+        std::cout << fullPath << " - File already exists\n";
         return;
     } else {
-        std::cout << " - File does not exist\n";
-        std::cout << "Searching for cities between x: " << x0 << "-" << x1 << ", " << z0 << "-" << z1 << "\n";
+        std::cout << fullPath << " - File does not exist\n";
+        std::cout << "Searching for cities between x: " << x0 << " and " << x1 
+                  << ", z: " << z0 << " and " << z1 << "\n";
     }
 
-    FILE* fpt;
-    fpt = fopen(PROJECT_DIR(filename.str()).c_str(), "w+");
-    fprintf(fpt, "x,z,ship,looted\n");
+    // Open file for writing
+    FILE* file = fopen(fullPath.c_str(), "w+");
+    if (!file) {
+        std::cerr << "Error opening file: " << fullPath << "\n";
+        return;
+    }
+    fprintf(file, "x,z,ship,looted\n");
 
-    // set up a biome generator
-    Generator g;
-    setupGenerator(&g, mc, 0);
-    applySeed(&g, dim, seed);
+    // Setup biome generator and seed
+    Generator generator;
+    setupGenerator(&generator, mcVersion, 0);
+    applySeed(&generator, dimension, seed);
 
-    // ignore this if you are not looking for end cities
-    SurfaceNoise sn;
-    if (structureType == End_City)
-        initSurfaceNoise(&sn, dim, seed);
+    // Special handling for End City structure type
+    SurfaceNoise surfaceNoise;
+    if (structureType == End_City) {
+        initSurfaceNoise(&surfaceNoise, dimension, seed);
+    }
 
-    StructureConfig sconf;
-    if (!getStructureConfig(structureType, mc, &sconf))
-        return; // bad version or structure
+    // Get structure configuration for the given version and structure type
+    StructureConfig structureConfig;
+    if (!getStructureConfig(structureType, mcVersion, &structureConfig)) {
+        std::cerr << "Invalid version or structure type\n";
+        fclose(file);
+        return;
+    }
 
-    // segment area into structure regions
-    double blocksPerRegion = sconf.regionSize * 16.0;
-    int rx0 = (int) floor(x0 / blocksPerRegion);
-    int rz0 = (int) floor(z0 / blocksPerRegion);
-    int rx1 = (int) ceil(x1 / blocksPerRegion);
-    int rz1 = (int) ceil(z1 / blocksPerRegion);
-    int i, j;
+    // Define region boundaries based on structure region size
+    double blocksPerRegion = structureConfig.regionSize * 16.0;
+    int rx0 = static_cast<int>(std::floor(x0 / blocksPerRegion));
+    int rz0 = static_cast<int>(std::floor(z0 / blocksPerRegion));
+    int rx1 = static_cast<int>(std::ceil(x1 / blocksPerRegion));
+    int rz1 = static_cast<int>(std::ceil(z1 / blocksPerRegion));
 
-    for (j = rz0; j <= rz1; j++) {
-        for (i = rx0; i <= rx1; i++) { // check the structure generation attempt in region (i, j)
+    // Iterate over structure regions
+    for (int j = rz0; j <= rz1; j++) {
+        for (int i = rx0; i <= rx1; i++) {
+
+            // Get the structure position
             Pos pos;
-            if (!getStructurePos(structureType, mc, seed, i, j, &pos))
-                continue; // this region is not suitable
-            if (pos.x < x0 || pos.x > x1 || pos.z < z0 || pos.z > z1)
-                continue; // structure is outside the specified area
-            if (!isViableStructurePos(structureType, &g, pos.x, pos.z, 0))
-                continue; // biomes are not viable
-            if ((structureType == End_City) && !isViableEndCityTerrain(&g, &sn, pos.x, pos.z))
-                // end cities have a dedicated terrain checker
+            if (!getStructurePos(structureType, mcVersion, seed, i, j, &pos)) {
                 continue;
-            else if (mc >= MC_1_18) { // some structures in 1.18+ depend on the terrain
-                if (!isViableStructureTerrain(structureType, &g, pos.x, pos.z))
-                    continue;
+            }
+            // Check if the structure is within the specified area
+            if (pos.x < x0 || pos.x > x1 || pos.z < z0 || pos.z > z1) {
+                continue;
+            }
+            // Verify biome viability for the structure
+            if (!isViableStructurePos(structureType, &generator, pos.x, pos.z, 0)) {
+                continue;
+            }
+            // Additional terrain checks for End City and 1.18+ versions
+            if (structureType == End_City && !isViableEndCityTerrain(&generator, &surfaceNoise, pos.x, pos.z)) {
+                continue;
+            }
+            if (mcVersion >= MC_1_18 && !isViableStructureTerrain(structureType, &generator, pos.x, pos.z)) {
+                continue;
             }
 
-            Piece* plist = (Piece*) calloc(END_CITY_PIECES_MAX, sizeof(Piece));
-            {
-                Piece* lst = plist;
-                for (int i = 0; i < END_CITY_PIECES_MAX; i++) {
-                    plist[i].next = &(plist[i + 1]);
-                }
+            // Get End City pieces (specific to End City structures)
+            Piece* pieceList = (Piece*) calloc(END_CITY_PIECES_MAX, sizeof(Piece));
+            if (!pieceList) {
+                std::cerr << "Memory allocation failed\n";
+                fclose(file);
+                return;
+            }
+
+            // Initialize linked list for pieces
+            for (int k = 0; k < END_CITY_PIECES_MAX - 1; k++) {
+                pieceList[k].next = &pieceList[k + 1];
             }
 
             int chunkX = pos.x / 16 - (pos.x < 0);
             int chunkZ = pos.z / 16 - (pos.z < 0);
-            int ret = getEndCityPieces(plist, seed, chunkX, chunkZ);
+            int ret = getEndCityPieces(pieceList, seed, chunkX, chunkZ);
 
+            // Check if a ship is present in the structure
             int hasShip = 0;
-
-            Piece* cpiece = plist;
-            for (int i = 0; i < ret; i++) {
-                if (strcmp(plist[i].name, "ship") == 0) {
+            for (int k = 0; k < ret; k++) {
+                if (strcmp(pieceList[k].name, "ship") == 0) {
                     hasShip = 1;
                     break;
                 }
             }
 
+            // Output structure info
             std::cout << "x: " << pos.x << ", z: " << pos.z << ", ship: " << hasShip << "\n";
-            fprintf(fpt, "%d,%d,%d,0\n", pos.x, pos.z, hasShip);
+            fprintf(file, "%d,%d,%d,0\n", pos.x, pos.z, hasShip);
+
+            // Free allocated memory
+            free(pieceList);
         }
     }
-    fclose(fpt);
+
+    // Close file after writing
+    fclose(file);
 }
 
-void findStructuresAround(uint64_t seed, int x, int z, int mc) {
-    int r = 5000;
+// Function to find structures around a given seed and coordinates
+void findStructuresAround(uint64_t seed, int x, int z, int mcVersion) {
+    const int radius = 5000;
+    int rx = x / radius - (x < 0);
+    int rz = z / radius - (z < 0);
 
-    int rx = x / r - (x < 0);
-    int rz = z / r - (z < 0);
-
+    // Check regions around the coordinates
     for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {
-            findStructures(End_City, mc, DIM_END, seed, r * (rx + i), r * (rz + j), r * (rx + i + 1), r * (rz + j + 1));
+            findStructures(End_City, mcVersion, DIM_END, seed, 
+                           radius * (rx + i), radius * (rz + j), 
+                           radius * (rx + i + 1), radius * (rz + j + 1));
         }
     }
 }

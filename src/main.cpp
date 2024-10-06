@@ -13,58 +13,47 @@
 #include "cityparser.hpp"
 #include "es_frontend.hpp"
 
-int optimalScale(std::vector<CityLocation> cities, int64_t playerX, int64_t playerZ) {
+int optimalScale(const std::vector<CityLocation>& cities, int64_t playerX, int64_t playerZ) {
     int maxDistance = 600;
-    for (CityLocation city: cities) {
-        if (abs(static_cast<int64_t>(city.x - playerX)) > maxDistance) {
-            maxDistance = abs(static_cast<int64_t>(city.x - playerX));
-        }
-        if (abs(static_cast<int64_t>(city.z - playerZ)) > maxDistance) {
-            maxDistance = abs(static_cast<int64_t>(city.z - playerZ));
-        }
+    for (const auto& city : cities) {
+        maxDistance = std::max(maxDistance, static_cast<int>(std::abs(city.x - playerX)));
+        maxDistance = std::max(maxDistance, static_cast<int>(std::abs(city.z - playerZ)));
     }
-    return floor((maxDistance * 1.1) / 75.f);
+    return static_cast<int>(std::floor((maxDistance * 1.1) / 75.f));
 }
 
-std::vector<CityLocation> GeneratePath(uint64_t visitCities, std::vector<CityLocation> cities,
-    const int64_t &playerX,
-        const int64_t &playerZ) {
+std::vector<CityLocation> GeneratePath(uint64_t visitCities, std::vector<CityLocation> cities, const int64_t& playerX, const int64_t& playerZ) {
     std::vector<CityLocation> result;
     std::vector<CityLocation> tmp = filterCities(cities, true, true);
     int64_t travellerX = playerX;
     int64_t travellerZ = playerZ;
 
-    for (uint64_t i = 0; i < visitCities; i++) {
-        CityLocation winner;
-        double winningDist = std::numeric_limits<double>::max();
-        uint64_t winningIndex = 0;
-        if (tmp.size() == 0) {
-            break;
+    for (uint64_t i = 0; i < visitCities && !tmp.empty(); ++i) {
+        auto closestCity = std::min_element(tmp.begin(), tmp.end(), [&](const CityLocation& a, const CityLocation& b) {
+            double distA = sqrt(pow(a.x - travellerX, 2) + pow(a.z - travellerZ, 2));
+            double distB = sqrt(pow(b.x - travellerX, 2) + pow(b.z - travellerZ, 2));
+            return distA < distB;
+        });
+
+        if (closestCity != tmp.end()) {
+            result.push_back(*closestCity);
+            travellerX = closestCity->x;
+            travellerZ = closestCity->z;
+            tmp.erase(closestCity);
         }
-        for (uint64_t j = 0; j < tmp.size(); j++) {
-            double dist = sqrtf64(powf64(tmp[j].x - travellerX, 2.0) + powf64(tmp[j].z - travellerZ, 2.0));
-            if (dist < winningDist) {
-                winningDist = dist;
-                winner = tmp[j];
-                winningIndex = j;
-            }
-        }
-        tmp.erase(tmp.begin() + winningIndex);
-        travellerX = winner.x;
-        travellerZ = winner.z;
-        result.push_back(winner);
     }
-    std::cout << "Path found: \n";
-    FILE* fpt;
-    fpt = fopen(PROJECT_DIR("waypoints.txt").c_str(), "w+");
+
+    std::ofstream waypointsFile(PROJECT_DIR("waypoints.txt"));
+    if (!waypointsFile.is_open()) {
+        std::cerr << "Error opening waypoints file!" << std::endl;
+        return result;
+    }
+
     int n = 1;
-    for (const auto &a: result) {
-        std::cout << a.x << ", " << a.z << "; ";
-        fprintf(fpt, "waypoint:%d:%d:%d:~:%d:%d:false:0:End_Cities:false:0:0:false\n", n, n, a.x, a.z, n % 16);
-        n++;
+    for (const auto& city : result) {
+        waypointsFile << "waypoint:" << n << ":" << n << ":" << city.x << ":~:" << city.z << ":false:0:End_Cities:false:0:0:false\n";
+        ++n;
     }
-    std::cout << "length: " << result.size() << std::endl;
-    fclose(fpt);
 
     return result;
 }
